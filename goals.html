@@ -1,0 +1,576 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-7PB5B8C26W"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-7PB5B8C26W');
+</script>
+  <link rel="stylesheet" href="styles.css">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Student Well — تذكيرات وأهداف (محلي)</title>
+  <style>
+        *{box-sizing:border-box}
+    body{margin:0;background:linear-gradient(180deg,var(--bg),#eef6fb);color:#0f172a}
+    header{padding:18px;text-align:center}
+    .brand{display:inline-block;background:var(--card);padding:12px 18px;border-radius:12px;box-shadow:0 10px 30px rgba(19,38,71,0.05)}
+    .brand h1{margin:0;color:var(--accent)}
+    .lead{color:var(--muted);margin-top:6px}
+
+    .container{max-width:1100px;margin:20px auto;padding:0 16px}
+    .layout{display:grid;grid-template-columns:420px 1fr;gap:18px}
+    .card{background:var(--card);padding:14px;border-radius:12px;box-shadow:0 8px 24px rgba(19,38,71,0.04)}
+    label{display:block;margin-bottom:6px;font-weight:700}
+    input[type=text], textarea, input[type=datetime-local], select{
+      width:100%;padding:8px;border:1px solid #e6eefc;border-radius:8px;margin-bottom:10px;font-size:14px
+    }
+    .row{display:flex;gap:8px;align-items:center}
+    .btn{padding:8px 12px;border-radius:10px;border:0;cursor:pointer;font-weight:700}
+    .btn.primary{background:linear-gradient(90deg,var(--accent),var(--accent-2));color:white}
+    .btn.ghost{background:transparent;border:1px solid rgba(47,111,168,0.12);color:var(--accent)}
+    .small{padding:6px 8px;font-size:13px}
+
+    .goals-list{max-height:560px;overflow:auto;margin-top:8px}
+    .goal-item{padding:10px;border-radius:10px;border:1px solid #f0f6fb;margin-bottom:10px;display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
+    .goal-main{flex:1}
+    .goal-title{font-weight:800;color:var(--accent);margin:0 0 6px}
+    .goal-meta{font-size:13px;color:var(--muted);margin-bottom:6px}
+    .pill{display:inline-block;padding:4px 8px;border-radius:999px;font-size:12px;background:#f1f8ff;color:var(--accent);margin-left:6px}
+
+    .controls{display:flex;gap:8px;flex-wrap:wrap}
+
+    .empty{color:var(--muted);padding:12px;text-align:center}
+
+    footer{margin-top:18px;text-align:center;color:var(--muted)}
+
+    .setting-row{display:flex;gap:8px;align-items:center;margin-bottom:8px}
+
+    @media (max-width:920px){ .layout{grid-template-columns:1fr} }
+/* =====================
+   Goals Page – Fixes
+===================== */
+
+/* cards */
+.card{
+  background: var(--card);
+  color: var(--text);
+}
+
+/* goal item */
+.goal-item{
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.06);
+  transition: background .2s ease, transform .15s ease;
+}
+
+.goal-item:hover{
+  background: rgba(255,255,255,0.07);
+  transform: translateY(-1px);
+}
+
+/* titles */
+.goal-title{
+  color: var(--accent);
+}
+
+/* meta text */
+.goal-meta,
+.goal-item div[style*="font-size"]{
+  color: var(--muted);
+}
+
+/* pills */
+.pill{
+  background: rgba(47,111,168,0.15);
+  color: var(--accent);
+}
+
+/* buttons */
+.btn{
+  color: var(--text);
+}
+
+.btn.primary{
+  color: #fff;
+}
+
+.btn.ghost{
+  border-color: rgba(255,255,255,0.12);
+  color: var(--accent);
+}
+
+.btn.ghost:hover{
+  background: rgba(47,111,168,0.12);
+}
+
+/* inputs */
+input,
+textarea,
+select{
+  background: rgba(255,255,255,0.05);
+  color: var(--text);
+  border-color: rgba(255,255,255,0.12);
+}
+
+input::placeholder,
+textarea::placeholder{
+  color: var(--muted);
+}
+
+/* empty state */
+.empty{
+  color: var(--muted);
+}
+
+  </style>
+</head>
+<body>
+<main id="main" class="page">
+  <header>
+    <div class="brand">
+      <h1>تذكيرات &amp; أهداف — Student Well</h1>
+      <div class="lead">نظم أهدافك — التخزين محليًا على جهازك (LocalStorage) — مناسب للـ MVP والهاكاثون.</div>
+    </div>
+  </header>
+
+  <main class="container">
+    <div class="layout">
+      <!-- Sidebar: form لإضافة هدف + إعدادات الصوت والإشعارات -->
+      <aside class="card" aria-labelledby="addTitle">
+        <h2 id="addTitle">أضف هدف / تذكير</h2>
+
+        <form id="goalForm">
+          <label for="title">عنوان الهدف *</label>
+          <input id="title" name="title" type="text" placeholder="مثال: مراجعة ساعتين" required />
+
+          <label for="desc">وصف (اختياري)</label>
+          <textarea id="desc" name="desc" rows="3" placeholder="قليل من التفاصيل..." ></textarea>
+
+          <label for="due">تاريخ/وقت التذكير (اختياري)</label>
+          <input id="due" name="due" type="datetime-local" />
+
+          <label for="repeat">تكرار</label>
+          <select id="repeat" name="repeat">
+            <option value="none">لا يوجد</option>
+            <option value="daily">يومي</option>
+            <option value="weekly">أسبوعي</option>
+          </select>
+
+          <div style="display:flex;gap:8px;margin-top:8px">
+            <button type="submit" class="btn primary">اضف الهدف</button>
+            <button type="button" id="importBtn" class="btn ghost small">استيراد JSON</button>
+            <button type="button" id="exportBtn" class="btn ghost small">تصدير JSON</button>
+          </div>
+
+          <div style="margin-top:10px;font-size:13px;color:var(--muted)">
+            ملاحظة: التذكيرات تعمل طالما الصفحة مفتوحة (أو في تبويب). جميع البيانات تحفظ محليًا على جهازك.
+          </div>
+        </form>
+
+        <hr style="margin:14px 0;border:none;border-top:1px solid #f0f6fb" />
+
+        <div>
+          <h3 style="margin:0 0 8px">الإعدادات</h3>
+
+          <!-- Notification & sound -->
+          <div style="margin-top:6px">
+            <label style="display:block;margin-bottom:6px">خيارات التذكير</label>
+            <div class="setting-row">
+              <label><input type="checkbox" id="enableNotifications"> استخدم إشعارات النظام (Notification API)</label>
+            </div>
+            <div class="setting-row">
+              <label><input type="checkbox" id="enableSound" checked> شغّل صوت عند التذكير</label>
+            </div>
+            <div style="font-size:13px;color:var(--muted)">للاستفادة من إشعارات النظام يجب السماح بها في المتصفح؛ الصوت يعمل طالما الصفحة مفتوحة.</div>
+          </div>
+
+          <div style="display:flex;gap:8px;margin-top:10px">
+            <button id="clearAll" class="btn ghost small">مسح كل الأهداف</button>
+            <button id="requestNotify" class="btn ghost small">طلب إذن الإشعارات</button>
+          </div>
+
+        </div>
+      </aside>
+
+      <!-- Main: قائمة الأهداف -->
+      <section class="card" aria-labelledby="listTitle">
+        <h2 id="listTitle">قائمة الأهداف والتذكيرات</h2>
+        <div id="goalsContainer" class="goals-list" role="list"></div>
+
+        <div id="emptyState" class="empty">لا توجد أهداف بعد — أضف هدفك الأول من الجنب.</div>
+
+        <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+          <a href="index.html" class="btn ghost small">العودة للرئيسية</a>
+          <a href="plans.html" class="btn ghost small">الخطط والنصايح</a>
+          <a href="survey.html" class="btn ghost small">الاستبيان</a>
+          <a href="contact.html" class="btn ghost small">تواصل</a>
+          <a href="admin.html" class="btn ghost small">لوحة تحكّم (لجنة)</a>
+        </div>
+      </section>
+    </div>
+
+    <footer>
+         </footer>
+  </main>
+
+  <audio id="notifSound" src="data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAESsAACJWAAACABAAZGF0YQAAAAA="></audio>
+
+  <script>
+    /***********************
+     * Storage & Settings  *
+     ***********************/
+    const FORM = document.getElementById('goalForm');
+    const container = document.getElementById('goalsContainer');
+    const emptyState = document.getElementById('emptyState');
+    const exportBtn = document.getElementById('exportBtn');
+    const importBtn = document.getElementById('importBtn');
+    const clearAllBtn = document.getElementById('clearAll');
+    const requestNotifyBtn = document.getElementById('requestNotify');
+
+    const enableNotifications = document.getElementById('enableNotifications');
+    const enableSound = document.getElementById('enableSound');
+    const notifSound = document.getElementById('notifSound');
+
+    const STORAGE_KEY = 'studentwell_goals_v1';
+    const SETTINGS_KEY = 'studentwell_settings_v1';
+
+    function loadSettings(){
+      try{
+        return JSON.parse(localStorage.getItem(SETTINGS_KEY) || '{}');
+      }catch(e){
+        return {};
+      }
+    }
+    function saveSettings(s){
+      localStorage.setItem(SETTINGS_KEY, JSON.stringify(s));
+    }
+
+    // default settings (local-only)
+    const defaultSettings = {
+      notifications: false,
+      sound: true
+    };
+
+    // load or init settings
+    const SETTINGS = Object.assign({}, defaultSettings, loadSettings());
+
+    // apply settings to UI
+    function applySettingsToUI(){
+      enableNotifications.checked = !!SETTINGS.notifications;
+      enableSound.checked = !!SETTINGS.sound;
+    }
+    applySettingsToUI();
+
+    // save UI changes
+    enableNotifications.addEventListener('change', ()=> { SETTINGS.notifications = enableNotifications.checked; saveSettings(SETTINGS); });
+    enableSound.addEventListener('change', ()=> { SETTINGS.sound = enableSound.checked; saveSettings(SETTINGS); });
+
+    /***********************
+     * Goals storage CRUD  *
+     ***********************/
+    function loadGoals(){
+      try{
+        return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+      }catch(e){
+        return [];
+      }
+    }
+    function saveGoals(arr){
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(arr));
+    }
+    function uid(){ return 'g_' + Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
+
+    /***********************
+     * Render UI           *
+     ***********************/
+    function render(){
+      const goals = loadGoals();
+      container.innerHTML = '';
+      if(goals.length === 0){ emptyState.style.display = 'block'; return; }
+      emptyState.style.display = 'none';
+
+      goals.slice().reverse().forEach(goal => {
+        const item = document.createElement('div');
+        item.className = 'goal-item';
+        item.setAttribute('role','listitem');
+        item.innerHTML = `
+          <div class="goal-main">
+            <div style="display:flex;align-items:center;gap:8px">
+              <div style="flex:1">
+                <div class="goal-title">${escapeHtml(goal.title)}</div>
+                <div class="goal-meta">${goal.desc ? escapeHtml(goal.desc) : '<span style="color:var(--muted)">بدون وصف</span>'}</div>
+                <div style="font-size:13px;color:var(--muted)">
+                  ${goal.due ? 'موعد: ' + new Date(goal.due).toLocaleString() : '<span class="pill">بدون موعد</span>'}
+                  ${goal.repeat && goal.repeat !== 'none' ? `<span class="pill">تكرار: ${escapeHtml(goal.repeat)}</span>` : ''}
+                  ${goal.completed ? `<span class="pill" style="background:#e6ffef;color:var(--success)">مكتمل</span>` : ''}
+                </div>
+              </div>
+            </div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end">
+            <div class="controls">
+              <button class="btn small ghost" data-action="toggle" data-id="${goal.id}">${goal.completed ? 'إلغاء الإنجاز' : 'معلم كمنجز'}</button>
+              <button class="btn small ghost" data-action="edit" data-id="${goal.id}">تعديل</button>
+              <button class="btn small" style="background:#ffeef0;color:var(--danger)" data-action="delete" data-id="${goal.id}">حذف</button>
+            </div>
+            <div style="font-size:12px;color:var(--muted)">${timeSince(goal.created)}</div>
+          </div>
+        `;
+        item.querySelectorAll('button').forEach(b=>{
+          b.addEventListener('click', (e)=>{
+            const action = b.getAttribute('data-action');
+            const id = b.getAttribute('data-id');
+            if(action === 'delete') deleteGoal(id);
+            if(action === 'toggle') toggleComplete(id);
+            if(action === 'edit') editGoal(id);
+          });
+        });
+        container.appendChild(item);
+      });
+    }
+
+    /***********************
+     * CRUD functions      *
+     ***********************/
+    function addGoal(obj){
+      const arr = loadGoals();
+      arr.push(obj);
+      saveGoals(arr);
+      render();
+      // local-only: nothing to send to server
+    }
+
+    function deleteGoal(id){
+      if(!confirm('هل تريد حذف هذا الهدف؟')) return;
+      const arr = loadGoals().filter(g=>g.id !== id);
+      saveGoals(arr);
+      render();
+    }
+
+    function toggleComplete(id){
+      const arr = loadGoals();
+      const g = arr.find(x=>x.id === id);
+      if(!g) return;
+      g.completed = !g.completed;
+      g.completedAt = g.completed ? Date.now() : null;
+      saveGoals(arr);
+      render();
+    }
+
+    function editGoal(id){
+      const arr = loadGoals();
+      const g = arr.find(x=>x.id === id);
+      if(!g) return alert('العنصر مش موجود.');
+      document.getElementById('title').value = g.title;
+      document.getElementById('desc').value = g.desc || '';
+      document.getElementById('due').value = g.due ? formatForInput(new Date(g.due)) : '';
+      document.getElementById('repeat').value = g.repeat || 'none';
+      // حذف العنصر القديم وسيتم إضافة نسخة جديدة عند الحفظ
+      const newArr = arr.filter(x=>x.id !== id);
+      saveGoals(newArr);
+      render();
+      window.scrollTo({top:0,behavior:'smooth'});
+    }
+
+    /***********************
+     * Utilities           *
+     ***********************/
+    function formatForInput(d){
+      const pad = n => String(n).padStart(2,'0');
+      return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+    }
+    function timeSince(ts){
+      const diff = Math.floor((Date.now() - ts)/1000);
+      if(diff < 60) return `${diff} ث`;
+      if(diff < 3600) return `${Math.floor(diff/60)} د`;
+      if(diff < 86400) return `${Math.floor(diff/3600)} س`;
+      return `${Math.floor(diff/86400)} يوم`;
+    }
+    function escapeHtml(s){ if(!s) return ''; return String(s).replace(/[&<>"']/g, c=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' })[c]); }
+
+    /***********************
+     * Form handling       *
+     ***********************/
+    FORM.addEventListener('submit', e=>{
+      e.preventDefault();
+      const title = FORM.title.value.trim();
+      if(!title) return alert('اكتب عنوان للهدف.');
+      const desc = FORM.desc.value.trim();
+      const dueVal = FORM.due.value ? new Date(FORM.due.value).toISOString() : null;
+      const repeat = FORM.repeat.value || 'none';
+      const newGoal = {
+        id: uid(),
+        title, desc,
+        due: dueVal,
+        repeat,
+        created: Date.now(),
+        completed: false
+      };
+      addGoal(newGoal);
+      FORM.reset();
+      alert('تم إضافة الهدف.');
+    });
+
+    /***********************
+     * Export / Import     *
+     ***********************/
+    exportBtn.addEventListener('click', ()=>{
+      const data = JSON.stringify(loadGoals(), null, 2);
+      const blob = new Blob([data], {type:'application/json'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a'); a.href = url; a.download = 'studentwell_goals.json'; a.click(); URL.revokeObjectURL(url);
+    });
+
+    importBtn.addEventListener('click', ()=>{
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.accept = 'application/json';
+      input.onchange = ()=> {
+        const file = input.files[0];
+        if(!file) return;
+        const reader = new FileReader();
+        reader.onload = ()=>{
+          try{
+            const parsed = JSON.parse(reader.result);
+            if(!Array.isArray(parsed)) throw new Error('JSON غير صحيح.');
+            const sanitized = parsed.map(p=>({
+              id: p.id || uid(),
+              title: p.title || 'بدون عنوان',
+              desc: p.desc || '',
+              due: p.due || null,
+              repeat: p.repeat || 'none',
+              created: p.created || Date.now(),
+              completed: !!p.completed
+            }));
+            saveGoals(sanitized);
+            render();
+            alert('تم استيراد الأهداف.');
+          }catch(err){
+            alert('فشل الاستيراد — تأكد من ملف JSON مناسب.');
+          }
+        };
+        reader.readAsText(file);
+      };
+      input.click();
+    });
+
+    clearAllBtn.addEventListener('click', ()=>{
+      if(!confirm('هل أنت متأكد من مسح كل الأهداف؟')) return;
+      saveGoals([]);
+      render();
+    });
+
+    /***********************
+     * Notifications & sound*
+     ***********************/
+    requestNotifyBtn.addEventListener('click', async ()=>{
+      if(!('Notification' in window)) return alert('الإشعارات غير مدعومة في المتصفح ده.');
+      try{
+        const p = await Notification.requestPermission();
+        SETTINGS.notifications = (p === 'granted');
+        saveSettings(SETTINGS);
+        applySettingsToUI();
+        alert('حالة إذن الإشعارات: ' + p);
+      }catch(e){
+        alert('فشل طلب الإذن.');
+      }
+    });
+
+    // play sound helper
+    function playSound(){
+      try{
+        if(!SETTINGS.sound) return;
+        notifSound.currentTime = 0;
+        notifSound.play().catch(()=>{/* ignore play errors */});
+      }catch(e){}
+    }
+
+    /***********************
+     * Reminders loop      *
+     ***********************/
+    // تحقق كل 30 ثانية من التذكيرات وقتها
+    setInterval(checkReminders, 30*1000);
+    window.addEventListener('load', ()=>{ render(); checkReminders(); loadSettingsToMemory(); });
+
+    function loadSettingsToMemory(){
+      // ensure SETTINGS object updated with UI
+      SETTINGS.notifications = enableNotifications.checked;
+      SETTINGS.sound = enableSound.checked;
+      saveSettings(SETTINGS);
+    }
+
+    async function checkReminders(){
+      // refresh settings from UI in case user modified
+      loadSettingsToMemory();
+      const goals = loadGoals();
+      const now = Date.now();
+      for(const g of goals){
+        if(!g.due) continue;
+        // if already notified and no repeat, skip
+        if(g.notified && (g.repeat === 'none')) continue;
+        const dueTs = new Date(g.due).getTime();
+        // trigger if within 60s of now
+        if(Math.abs(now - dueTs) < 60*1000){
+          // trigger
+          await triggerReminder(g);
+          // update next occurrence
+          if(g.repeat === 'daily'){
+            const next = new Date(g.due); next.setDate(next.getDate() + 1); g.due = next.toISOString();
+          } else if(g.repeat === 'weekly'){
+            const next = new Date(g.due); next.setDate(next.getDate() + 7); g.due = next.toISOString();
+          } else {
+            g.notified = true;
+          }
+          saveGoals(goals);
+          render();
+        }
+      }
+    }
+
+    async function triggerReminder(g){
+      // 1) play sound if enabled
+      if(SETTINGS.sound) playSound();
+
+      // 2) if notifications allowed, show system notification
+      if(SETTINGS.notifications && 'Notification' in window && Notification.permission === 'granted'){
+        try{
+          const n = new Notification(`تذكير: ${g.title}`, {body: g.desc || 'حان موعد التذكير', tag: g.id});
+          n.onclick = ()=> window.focus();
+        }catch(e){
+          // ignore
+        }
+      } else {
+        // fallback in-page alert
+        try{ alert(`تذكير: ${g.title}\n\n${g.desc || ''}`); }catch(e){}
+      }
+
+      // 3) local-only: لا عمليات إرسال للسيرفر، كل شيء محفوظ محليًا بالفعل
+    }
+
+    /***********************
+     * Helpers on load     *
+     ***********************/
+    // restore settings from localStorage into SETTINGS object and UI
+    window.addEventListener('load', ()=>{
+      const s = loadSettings();
+      Object.assign(SETTINGS, s);
+      applySettingsToUI();
+      // if notification permission was granted earlier, reflect that
+      if('Notification' in window && Notification.permission === 'granted') {
+        SETTINGS.notifications = true; enableNotifications.checked = true;
+      }
+    });
+
+    // initial render
+    render();
+  </script>
+
+<script src="site-nav.js"></script>
+<script src="nav-scroll.js"></script>
+</body>
+</html>

@@ -1,0 +1,802 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-7PB5B8C26W"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-7PB5B8C26W');
+</script>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Student Well — استبيان تقييم الحالة النفسية</title>
+
+  <!-- رابط ملف الستايل العام (اختياري) -->
+  <link rel="stylesheet" href="styles.css">
+
+  <style>
+
+  *{ box-sizing:border-box }
+
+  body{
+    margin:0;
+    background: linear-gradient(180deg, var(--bg), var(--bg-grad));
+    color: var(--text);
+    min-height:100vh;
+  }
+
+  header{
+    background:transparent;
+    padding:18px 12px;
+    position:sticky;
+    top:0;
+    z-index:40;
+  }
+
+  .wrap{
+    max-width:1100px;
+    margin:10px auto;
+    padding:0 16px;
+  }
+
+  /* ================= HERO ================= */
+  .hero{
+    display:flex;
+    gap:18px;
+    align-items:center;
+    justify-content:space-between;
+    background:var(--card);
+    border-radius:14px;
+    padding:18px;
+    box-shadow:0 10px 28px rgba(0,0,0,.06);
+    margin-bottom:14px;
+  }
+
+  .hero .brand{
+    display:flex;
+    gap:14px;
+    align-items:center;
+  }
+
+  .hero img.logo{
+    width:72px;
+    height:72px;
+    object-fit:contain;
+    border-radius:10px;
+    background:var(--bg-grad);
+    padding:8px;
+  }
+
+  .hero .titles h1{
+    margin:0;
+    color:var(--text);
+    font-size:20px;
+  }
+
+  .hero .titles p{
+    margin:4px 0 0;
+    color:var(--muted);
+    font-size:14px;
+    max-width:680px;
+    line-height:1.5;
+  }
+
+  .hero-img{
+    width:260px;
+    height:120px;
+    border-radius:10px;
+    overflow:hidden;
+    flex-shrink:0;
+  }
+
+  .hero-img img{
+    width:100%;
+    height:100%;
+    object-fit:cover;
+    display:block;
+  }
+
+  /* ================= CONTROLS ================= */
+  .controls-panel{
+    display:flex;
+    gap:10px;
+    align-items:center;
+    background:var(--card);
+    padding:12px;
+    border-radius:12px;
+    box-shadow:0 8px 20px rgba(0,0,0,.04);
+    margin-bottom:12px;
+  }
+
+  .controls-panel .group{
+    display:flex;
+    gap:8px;
+    align-items:center;
+  }
+
+  .controls-panel label{
+    color:var(--muted);
+    font-size:13px;
+  }
+
+  select,
+  input[type=number]{
+    padding:8px 10px;
+    border-radius:8px;
+    border:1px solid var(--border);
+    background:var(--card);
+    color:var(--text);
+    font-size:14px;
+  }
+
+  .btn{
+    background:linear-gradient(90deg,var(--accent),var(--accent-2));
+    color:#fff;
+    padding:8px 12px;
+    border-radius:10px;
+    border:0;
+    cursor:pointer;
+    font-weight:700;
+  }
+
+  .btn.ghost{
+    background:transparent;
+    color:var(--accent);
+    border:1px solid var(--border);
+  }
+
+  /* ================= CARD / FORM ================= */
+  .card{
+    background:var(--card);
+    color:var(--text);
+    border-radius:12px;
+    padding:18px;
+    box-shadow:0 10px 30px rgba(0,0,0,.05);
+  }
+
+  .q{ margin-bottom:14px }
+
+  .q-title{
+    display:block;
+    font-weight:700;
+    margin-bottom:8px;
+    color:var(--text);
+  }
+
+  .options{
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+  }
+
+  .opt{
+    background:var(--bg-grad);
+    border:1px solid var(--border);
+    padding:8px 12px;
+    border-radius:999px;
+    cursor:pointer;
+    font-weight:600;
+    color:var(--text);
+  }
+
+  .opt.selected{
+    background:linear-gradient(90deg,var(--accent),var(--accent-2));
+    color:#fff;
+    border-color:transparent;
+  }
+
+  .actions{
+    display:flex;
+    gap:10px;
+    margin-top:12px;
+    flex-wrap:wrap;
+  }
+
+  .result{
+    margin-top:16px;
+    display:grid;
+    grid-template-columns:1fr 280px;
+    gap:16px;
+    align-items:start;
+  }
+
+  .score{
+    font-size:34px;
+    font-weight:800;
+    color:var(--accent);
+  }
+
+  .meter{
+    height:12px;
+    background:var(--border);
+    border-radius:999px;
+    overflow:hidden;
+    margin-top:8px;
+  }
+
+  .meter > span{
+    display:block;
+    height:100%;
+    background:linear-gradient(90deg,var(--accent),var(--accent-2));
+    width:0%;
+  }
+
+  .history{
+    padding:12px;
+    border-radius:10px;
+    background:var(--bg-grad);
+    max-height:360px;
+    overflow:auto;
+  }
+
+  .history li{
+    margin-bottom:8px;
+    font-size:14px;
+    color:var(--muted);
+    display:flex;
+    justify-content:space-between;
+    gap:8px;
+  }
+
+  .mode-pill{
+    padding:6px 10px;
+    border-radius:999px;
+    background:var(--bg-grad);
+    border:1px solid var(--border);
+    cursor:pointer;
+    color:var(--muted);
+  }
+
+  .mode-pill.active{
+    background:linear-gradient(90deg,var(--accent),var(--accent-2));
+    color:#fff;
+    border-color:transparent;
+    font-weight:700;
+  }
+
+  /* ================= RESPONSIVE ================= */
+  @media (max-width:980px){
+    .hero{
+      flex-direction:column;
+      align-items:flex-start;
+    }
+    .hero-img{
+      width:100%;
+      height:160px;
+    }
+    .controls-panel{
+      flex-direction:column;
+      align-items:flex-start;
+    }
+    .result{
+      grid-template-columns:1fr;
+    }
+  }
+</style>
+
+</head>
+<body>
+ <main class="wrap" role="main">
+    <!-- Hero with logo and image -->
+    <section class="hero" aria-label="Student Well hero">
+      <div class="brand">
+        <!-- using the uploaded image as logo (local path) -->
+        <img class="logo" src="images/survey-logo.jpg" alt="StudentWell logo">
+        <div class="titles">
+          <h1>Student Well — استبيان تقييم الحالة النفسية</h1>
+          <p>استبيان يومي قابل للتخصيص. اختر عدد الأسئلة ونمط التصنيف ثم اضغط "غيّر الأسئلة" لبداية مجموعة جديدة.</p>
+        </div>
+      </div>
+<p class="hint">
+ خُد أقل من دقيقتين، وجاوب بصدق       
+ ( النتيجة لمساعدتك فقط )   
+</p>
+
+      <div class="hero-img" aria-hidden="true">
+        <!-- reuse same uploaded image as hero illustration; استبدل بالمسار المناسب لو رفعته للموقع -->
+        <img src="images/survey-logo2.jpg" alt="Survey illustration">
+      </div>
+    </section>
+
+    <!-- Controls panel -->
+    <div class="controls-panel" role="toolbar" aria-label="Survey controls">
+      <div class="group">
+        <label for="nQuestions">عدد الأسئلة:</label>
+        <select id="nQuestions" aria-label="عدد الأسئلة">
+          <option value="5">5 أسئلة</option>
+          <option value="10">10 أسئلة</option>
+          <option value="15">15 أسئلة</option>
+          <option value="20">20 أسئلة</option>
+          <option value="25">25 أسئلة</option>
+        </select>
+      </div>
+
+      <div class="group" style="align-items:center;">
+        <label>نمط التصنيف:</label>
+        <div id="modeGroup" style="display:flex;gap:8px;align-items:center">
+          <div class="mode-pill active" data-mode="quick">Quick — مبسّط</div>
+          <div class="mode-pill" data-mode="detailed">Detailed — مفصّل</div>
+          <div class="mode-pill" data-mode="severity">Severity — حسب الشدة</div>
+        </div>
+      </div>
+
+      <div style="margin-left:auto; display:flex; gap:8px; align-items:center">
+        <button id="changeQsBtn" class="btn" type="button">غيّر الأسئلة (مجموعة جديدة)</button>
+        <button id="resetBank" class="btn ghost" type="button">إعادة خلط البنك</button>
+      </div>
+    </div>
+
+    <!-- Survey card -->
+    <div class="card" aria-labelledby="surveyTitle">
+      <h2 id="surveyTitle" style="display:none">استبيان StudentWell</h2>
+
+      <form id="surveyForm" novalidate>
+<div id="progressText" style="margin-bottom:10px;font-weight:600;color:var(--muted)">
+  السؤال 1 من 5
+</div>
+
+        <div id="questionsContainer">
+          <!-- سيتم إنشاء N أسئلة هنا برمجياً -->
+        </div>
+
+        <div class="actions">
+          <button type="submit" class="btn">حلّل النتيجة</button>
+          <button type="button" class="btn ghost" id="saveDraft">حفظ كمسودة</button>
+          <button type="button" class="btn ghost" id="clearForm">تفريغ</button>
+        </div>
+      </form>
+
+      <div class="result" aria-live="polite">
+        <div class="summary">
+          <div class="score" id="scoreDisplay">- / 100</div>
+          <div class="meter" aria-hidden><span id="meterBar" style="width:0%"></span></div>
+
+          <div class="rec" id="recommendations" style="margin-top:12px">
+            <h4>توصيات سريعة</h4>
+            <ul id="recList"></ul>
+          </div>
+
+          <div style="margin-top:12px;display:flex;gap:8px">
+            <button id="exportBtn" class="btn ghost" type="button">تصدير سجل (JSON)</button>
+            <button id="printBtn" class="btn ghost" type="button">طباعة</button>
+          </div>
+        </div>
+
+        <aside>
+          <div class="history card">
+            <h4>سجل الاستبيانات</h4>
+            <ul id="historyList"></ul>
+          </div>
+        </aside>
+      </div>
+    </div>
+
+  </main>
+
+  <script>
+    /* ====== survey logic (معدّل ليدعم N أسئلة + أنماط التصنيف) ====== */
+
+    // question bank (25 items as before)
+    const QUESTION_BANK = [
+
+  // ===== التوتر والقلق =====
+  { id:'Q01', text:'خلال آخر 7 أيام، كم مرة شعرت بضغط أو توتر شديد؟', scale:['أبدًا','نادرًا','أحيانًا','غالبًا','دائمًا'], reverse:true },
+  { id:'Q09', text:'هل كان لديك قلق من الأحداث المستقبلية مؤخرًا؟', scale:['أبدًا','نادرًا','أحيانًا','غالبًا','دائمًا'], reverse:true },
+  { id:'Q23', text:'هل تشعر بخوف زائد قبل الامتحانات أو المواقف الاجتماعية؟', scale:['أبدًا','نادرًا','أحيانًا','غالبًا','دائمًا'], reverse:true },
+
+  // ===== النوم والطاقة =====
+  { id:'Q02', text:'كيف تقيّم جودة نومك خلال الأسبوع الماضي؟', scale:['سيئة جدًا','سيئة','متوسطة','جيدة','ممتازة'] },
+  { id:'Q07', text:'هل تعاني من صعوبة في النوم (الاستغراق أو الاستمرار)؟', scale:['أبدًا','نادرًا','أحيانًا','غالبًا','دائمًا'], reverse:true },
+  { id:'Q21', text:'هل تشعر بأن طاقتك أقل من المعتاد؟', scale:['أبدًا','نادرًا','أحيانًا','غالبًا','دائمًا'], reverse:true },
+
+  // ===== التركيز والأداء =====
+  { id:'Q03', text:'ما مدى قدرتك على التركيز أثناء المذاكرة أو العمل؟', scale:['ضعيفة جدًا','ضعيفة','متوسطة','جيدة','ممتازة'] },
+  { id:'Q12', text:'هل تشعر بأن تركيزك يقل أثناء المحاضرات؟', scale:['أبدًا','نادرًا','أحيانًا','غالبًا','دائمًا'], reverse:true },
+  { id:'Q19', text:'هل تشعر أن هناك ما يؤثر سلبًا على أدائك الأكاديمي؟', scale:['أبدًا','نادرًا','أحيانًا','غالبًا','دائمًا'], reverse:true },
+
+  // ===== المزاج والصحة النفسية =====
+  { id:'Q05', text:'كيف تصف مزاجك العام خلال الأسبوع الماضي؟', scale:['سيئ جدًا','سيئ','محايد','جيد','جيد جدًا'] },
+  { id:'Q06', text:'هل فقدت الاهتمام بالأنشطة التي كنت تستمتع بها؟', scale:['أبدًا','نادرًا','أحيانًا','غالبًا','دائمًا'], reverse:true },
+  { id:'Q16', text:'هل تراودك أفكار سلبية متكررة عن نفسك؟', scale:['أبدًا','نادرًا','أحيانًا','غالبًا','دائمًا'], reverse:true },
+
+  // ===== العادات والتعامل مع الضغط =====
+  { id:'Q04', text:'هل تخصص وقتًا يوميًا للراحة أو الاسترخاء؟', scale:['أبدًا','نادرًا','أحيانًا','غالبًا','دائمًا'] },
+  { id:'Q18', text:'هل تلجأ للموبايل أو الأكل أو اللعب للهروب من التوتر؟', scale:['أبدًا','نادرًا','أحيانًا','غالبًا','دائمًا'], reverse:true },
+
+  // ===== العلاقات والدعم =====
+  { id:'Q11', text:'هل تتأثر علاقاتك الاجتماعية بسبب حالتك النفسية؟', scale:['أبدًا','نادرًا','أحيانًا','غالبًا','دائمًا'], reverse:true },
+  { id:'Q20', text:'هل تجد شخصًا تتحدث معه عندما تشعر بالتوتر؟', scale:['أبدًا','نادرًا','أحيانًا','غالبًا','دائمًا'] },
+
+  // ===== الجسد =====
+  { id:'Q10', text:'هل تشعر بتعب جسدي بدون سبب واضح؟', scale:['أبدًا','نادرًا','أحيانًا','غالبًا','دائمًا'], reverse:true },
+  { id:'Q17', text:'هل تعاني من توتر جسدي مثل شد عضلي أو خفقان؟', scale:['أبدًا','نادرًا','أحيانًا','غالبًا','دائمًا'], reverse:true },
+  { id:'Q24', text:'هل لاحظت تغيرًا في وزنك مؤخرًا بدون قصد؟', scale:['أبدًا','نادرًا','أحيانًا','غالبًا','دائمًا'], reverse:true },
+
+  // ===== الإيجابية والأهداف =====
+  { id:'Q15', text:'هل تشعر أنك تستمتع بالأشياء الصغيرة في حياتك؟', scale:['أبدًا','نادرًا','أحيانًا','غالبًا','دائمًا'] },
+  { id:'Q25', text:'هل تشعر أن لديك هدفًا أو خطة واضحة ليومك؟', scale:['أبدًا','نادرًا','أحيانًا','غالبًا','دائمًا'] }
+];
+
+
+
+    const HISTORY_KEY = 'studentwell_history';
+    const DRAFT_KEY = 'studentwell_draft';
+
+    // refs
+    const questionsContainer = document.getElementById('questionsContainer');
+    const changeQsBtn = document.getElementById('changeQsBtn');
+    const resetBankBtn = document.getElementById('resetBank');
+    const nQuestionsSelect = document.getElementById('nQuestions');
+    const modeGroup = document.getElementById('modeGroup');
+
+    const form = document.getElementById('surveyForm');
+    const scoreDisplay = document.getElementById('scoreDisplay');
+    const meterBar = document.getElementById('meterBar');
+    const recList = document.getElementById('recList');
+    const historyList = document.getElementById('historyList');
+    const saveDraft = document.getElementById('saveDraft');
+    const clearForm = document.getElementById('clearForm');
+    const exportBtn = document.getElementById('exportBtn');
+    const printBtn = document.getElementById('printBtn');
+
+    // state
+    let bank = [...QUESTION_BANK];
+    let shownSets = [];
+    let currentSet = [];
+    let activeMode = 'quick';
+
+    // helper shuffle
+    function shuffle(arr){ const a = arr.slice(); for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]] } return a; }
+
+    function pickNewSet(n){
+      const N = Number(n) || 5;
+      // if not enough left in bank -> refill
+      if(bank.length < N){
+        bank = shuffle(QUESTION_BANK.slice());
+        shownSets = [];
+      }
+      // pick random N from bank (remove them)
+      const shuffled = shuffle(bank);
+      const set = shuffled.slice(0,N);
+      // remove chosen from bank
+      const chosenIds = new Set(set.map(s=>s.id));
+      bank = bank.filter(b => !chosenIds.has(b.id));
+      shownSets.push(set.map(s=>s.id));
+      if(shownSets.length > Math.ceil(QUESTION_BANK.length / Math.max(5,N)) + 3) shownSets.shift();
+      return set;
+    }
+
+    // render set into DOM (names q1..qN)
+    function renderQuestionSet(set){
+      currentSet = set;
+const progressText = document.getElementById('progressText');
+if (progressText) {
+  progressText.textContent = `السؤال 1 من ${set.length}`;
+}
+
+      questionsContainer.innerHTML = '';
+      const n = set.length;
+      set.forEach((qObj, idx) => {
+        const qIndex = idx + 1;
+        const wrapper = document.createElement('div');
+        wrapper.className = 'q';
+        wrapper.dataset.qid = qObj.id;
+
+        const label = document.createElement('label');
+        label.className = 'q-title';
+        label.textContent = `${qIndex}. ${qObj.text}`;
+        wrapper.appendChild(label);
+
+        const opts = document.createElement('div');
+        opts.className = 'options';
+        opts.setAttribute('role','radiogroup');
+
+        // decide mapping direction based on mode (severity/detailed might invert)
+        // default: index 0 -> 0 ... index 4 -> 4 (higher better)
+        // for some negative-worded questions you might want to invert later.
+        qObj.scale.forEach((optText, i) => {
+          const labelOpt = document.createElement('label');
+          labelOpt.className = 'opt';
+          labelOpt.tabIndex = 0;
+          const input = document.createElement('input');
+          input.type = 'radio';
+          input.name = `q${qIndex}`;
+          input.value = i; // 0..4
+          input.style.display = 'none';
+          const span = document.createElement('span');
+          span.textContent = optText;
+          labelOpt.appendChild(input);
+          labelOpt.appendChild(span);
+
+          labelOpt.addEventListener('click', ()=>{
+            opts.querySelectorAll('.opt').forEach(s=>s.classList.remove('selected'));
+            labelOpt.classList.add('selected');
+            input.checked = true;
+          });
+          labelOpt.addEventListener('keydown', (e)=> { if(e.key==='Enter'||e.key===' '){ e.preventDefault(); labelOpt.click(); } });
+          opts.appendChild(labelOpt);
+        });
+
+        wrapper.appendChild(opts);
+
+        const hidden = document.createElement('input');
+        hidden.type = 'hidden';
+        hidden.name = `qid${qIndex}`;
+        hidden.value = qObj.id;
+        wrapper.appendChild(hidden);
+
+        questionsContainer.appendChild(wrapper);
+      });
+    }
+
+    // initial
+    function initialRender(){
+      bank = shuffle(QUESTION_BANK.slice());
+      shownSets = [];
+      const n = Number(nQuestionsSelect.value) || 5;
+      const set = pickNewSet(n);
+      renderQuestionSet(set);
+      loadDraftIntoForm();
+      renderHistory();
+    }
+
+    // controls
+    changeQsBtn.addEventListener('click', ()=>{
+      const n = Number(nQuestionsSelect.value) || 5;
+      const set = pickNewSet(n);
+      renderQuestionSet(set);
+      document.querySelectorAll('.opt.selected').forEach(o=>o.classList.remove('selected'));
+      form.querySelectorAll('input[type=radio]').forEach(i=>i.checked=false);
+      // clear result
+      scoreDisplay.textContent = '- / 100';
+      meterBar.style.width = '0%';
+      recList.innerHTML = '';
+    });
+
+    resetBankBtn.addEventListener('click', ()=>{
+      bank = shuffle(QUESTION_BANK.slice());
+      shownSets = [];
+      alert('تم إعادة خلط بنك الأسئلة.');
+    });
+
+    // mode pills
+    modeGroup.querySelectorAll('.mode-pill').forEach(p=>{
+      p.addEventListener('click', ()=>{
+        modeGroup.querySelectorAll('.mode-pill').forEach(x=>x.classList.remove('active'));
+        p.classList.add('active');
+        activeMode = p.dataset.mode;
+      });
+    });
+
+    // scoring mapping:
+    // we will compute raw = sum(vals) where each val 0..4
+    // final score scale: map to 0..100 by (raw / (n*4)) * 100
+    function calcScoreFromVals(vals){
+      const raw = vals.reduce((s,v)=> s + Number(v),0);
+      const n = vals.length;
+      const percent = Math.round((raw / (n*4)) * 100);
+      return { raw, percent };
+    }
+
+    // recommendations: return 5 tiers (we requested 5 quick recs map to score ranges)
+    function getRecommendations(percent){
+      // five tiers: 0-20 / 21-40 / 41-60 / 61-80 / 81-100
+      if(percent <= 20) return [
+        'تواصل مع مرشد أو صديق موثوق، واطلب دعمًا عند الحاجة.',
+        'ابحث عن موعد مع خدمات الصحة النفسية إن أمكن.',
+        'ابدأ بخطوات بسيطة: نوم منتظم، مشي يومي 10-15 دقيقة.',
+        'قلل الشاشات قبل النوم 30 دقيقة وجرّب تمارين تنفس قصيرة.',
+        'احتفظ بمذكرة يومية تسجل فيها 3 أمور إيجابية يوميًا.'
+      ];
+      if(percent <= 40) return [
+        'خصص فترات استراحة قصيرة أثناء المذاكرة (بومودورو).',
+        'جرب تمارين التنفس أو التأمل لمدة 5-10 دقائق يومياً.',
+        'مارس نشاطًا بدنيًا خفيفًا يوميًا (مشي/تمارين تمدد).',
+        'حدّد هدفًا بسيطًا يوميًا واحتفل بإنجازه مهما كان صغيرًا.',
+        'راقب نومك وحاول تحسين بيئة النوم (إضاءة/شاشات).'
+      ];
+      if(percent <= 60) return [
+        'أنت في مستوى متوسط — حافظ على العادات المفيدة.',
+        'استمر في تقسيم العمل لجلسات مركّزة مع راحات قصيرة.',
+        'حافظ على شبكة دعم (أصدقاء/أهل) وشاركهم تقدمك.',
+        'تابع روتين نوم ثابت وحاول تحسين جودة النوم تدريجيًا.',
+        'راجع أهدافك الأسبوعية وتأكد أنها واقعية ومتناسبة مع وقتك.'
+      ];
+      if(percent <= 80) return [
+        'مستوى جيد — واظب على الروتين الصحي.',
+        'يمكنك تحدي نفسك بأهداف جديدة صغيرة لرفع الأداء.',
+        'شارك نصائحك وتجاربك مع زملائك — دعم المجتمع مفيد.',
+        'تابع مراقبة النوم والنشاط البدني للحفاظ على الأداء.',
+        'استخدم أدوات تتبع لتقييم تقدمك أسبوعيًا.'
+      ];
+      return [
+        'مستوى ممتاز — استمر! حافظ على عاداتك اليومية.',
+        'شارك نجاحاتك وادعم الآخرين بتجاربك.',
+        'حافظ على التوازن بين العمل والراحة للحفاظ على الأداء.',
+        'فكّر في أهداف نمو طويلة الأمد وخطط لها تدريجيًا.',
+        'احرص على مراجعة حالتك دورياً للحفاظ على هذا المستوى.'
+      ];
+    }
+
+    // submit
+    form.addEventListener('submit', (e)=>{
+      e.preventDefault();
+      const formData = new FormData(form);
+      const n = currentSet.length;
+      const vals = [];
+      const qids = [];
+      for(let i=1;i<=n;i++){
+        const v = formData.get(`q${i}`);
+        const qid = formData.get(`qid${i}`);
+        if(v === null){
+          return alert('من فضلك جاوب على كل الأسئلة قبل التحليل.');
+        }
+        const question = currentSet[i-1];
+let value = Number(v);
+
+if (question.reverse) {
+  value = 4 - value;
+}
+
+vals.push(value);
+
+        qids.push(qid);
+      }
+      const { raw, percent } = calcScoreFromVals(vals);
+      scoreDisplay.textContent = `${percent} / 100`;
+      meterBar.style.width = `${percent}%`;
+
+      // recommendations based on percent and activeMode (can be extended)
+      let recs = getRecommendations(percent);
+      // if user chose detailed, expand each rec with short explanation
+      if(activeMode === 'detailed'){
+        recs = recs.map(r => r + ' — ');
+      } else if(activeMode === 'severity'){
+        // emphasize escalation steps for low scores
+        if(percent <= 40){
+          recs.unshift('إذا استمرّت الأعراض أو زادت، راجع مختصًا في الصحة النفسية بأقرب وقت.');
+        }
+      }
+      recList.innerHTML = '';
+      recs.forEach(r => { const li = document.createElement('li'); li.textContent = r; recList.appendChild(li); });
+
+      // save history
+      const hist = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
+      hist.push({ t: Date.now(), qids, vals, raw, percent, mode: activeMode, n });
+      localStorage.setItem(HISTORY_KEY, JSON.stringify(hist));
+      renderHistory();
+    });
+
+    function renderHistory(){
+      const hist = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
+      historyList.innerHTML = '';
+      if(!hist.length){ historyList.innerHTML = '<li style="color:var(--muted)">لا توجد بيانات محفوظة بعد.</li>'; return; }
+      hist.slice().reverse().forEach((item, idx)=>{
+        const li = document.createElement('li');
+        const d = new Date(item.t);
+        const left = document.createElement('div');
+        left.textContent = `${d.toLocaleString()} — ${item.percent} / 100`;
+        const actions = document.createElement('div');
+
+        const showBtn = document.createElement('button');
+        showBtn.textContent = 'عرض';
+        showBtn.className = 'btn ghost';
+        showBtn.style.padding = '6px 8px';
+        showBtn.addEventListener('click', ()=>{
+          // render questions from qids
+          const questionsToRender = item.qids.map(id => QUESTION_BANK.find(q=>q.id===id) || { id, text: id, scale: ['0','1','2','3','4'] });
+          renderQuestionSet(questionsToRender);
+          // set values
+          setTimeout(()=> {
+            for(let i=1;i<=questionsToRender.length;i++){
+              const v = item.vals[i-1];
+              const el = document.querySelector(`input[name="q${i}"][value="${v}"]`);
+              if(el){ el.checked=true; el.closest('.opt').classList.add('selected'); }
+            }
+            scoreDisplay.textContent = `${item.percent} / 100`;
+            meterBar.style.width = `${item.percent}%`;
+            recList.innerHTML = '';
+            const recs = getRecommendations(item.percent);
+            recs.forEach(r=>{ const li2=document.createElement('li'); li2.textContent=r; recList.appendChild(li2); });
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }, 40);
+        });
+
+        const delBtn = document.createElement('button');
+        delBtn.textContent = 'حذف';
+        delBtn.className = 'btn ghost';
+        delBtn.style.padding = '6px 8px';
+        delBtn.addEventListener('click', ()=>{
+          if(!confirm('هل تريد حذف هذا السجل؟')) return;
+          const all = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
+          all.splice(all.length - 1 - idx, 1); // because we reversed
+          localStorage.setItem(HISTORY_KEY, JSON.stringify(all));
+          renderHistory();
+        });
+
+        actions.appendChild(showBtn);
+        actions.appendChild(delBtn);
+
+        li.appendChild(left);
+        li.appendChild(actions);
+        historyList.appendChild(li);
+      });
+    }
+
+    // draft
+    saveDraft.addEventListener('click', ()=>{
+      const formData = new FormData(form);
+      const n = currentSet.length;
+      const draft = { qids: [], vals: [] };
+      for(let i=1;i<=n;i++){
+        draft.qids.push(formData.get(`qid${i}`) || null);
+        draft.vals.push(formData.get(`q${i}`) || null);
+      }
+      localStorage.setItem(DRAFT_KEY, JSON.stringify(draft));
+      alert('تم حفظ المسودة محليًا.');
+    });
+
+    function loadDraftIntoForm(){
+      try{
+        const draft = JSON.parse(localStorage.getItem(DRAFT_KEY) || 'null');
+        if(!draft) return;
+        if(draft.qids && draft.qids.length === currentSet.length){
+          const questionsToRender = draft.qids.map(id => QUESTION_BANK.find(q=>q.id===id) || {id, text:id, scale:['0','1','2','3','4']});
+          renderQuestionSet(questionsToRender);
+        }
+        setTimeout(()=> {
+          if(draft.vals){
+            for(let i=1;i<=draft.vals.length;i++){
+              const v = draft.vals[i-1];
+              if(v !== null){
+                const el = document.querySelector(`input[name="q${i}"][value="${v}"]`);
+                if(el){ el.checked = true; el.closest('.opt').classList.add('selected'); }
+              }
+            }
+          }
+        }, 40);
+      }catch(e){ console.warn('load draft error', e); }
+    }
+
+    clearForm.addEventListener('click', ()=>{
+      if(!confirm('هل تريد تفريغ الاستبيان؟')) return;
+      form.reset();
+      document.querySelectorAll('.opt.selected').forEach(o=>o.classList.remove('selected'));
+      scoreDisplay.textContent = '- / 100'; meterBar.style.width = '0%'; recList.innerHTML = '';
+    });
+
+    exportBtn.addEventListener('click', ()=>{
+      const data = localStorage.getItem(HISTORY_KEY) || '[]';
+      const blob = new Blob([data], {type:'application/json'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a'); a.href = url; a.download = 'studentwell_history.json'; a.click(); URL.revokeObjectURL(url);
+    });
+
+    printBtn.addEventListener('click', ()=> window.print());
+
+    // initialize
+    initialRender();
+
+    // handle Enter to change questions (accessibility)
+    changeQsBtn.addEventListener('keydown', e=> { if(e.key === 'Enter') changeQsBtn.click(); });
+
+    // allow switching nQuestions to immediately render new set
+    nQuestionsSelect.addEventListener('change', ()=>{
+      const n = Number(nQuestionsSelect.value) || 5;
+      const set = pickNewSet(n);
+      renderQuestionSet(set);
+    });
+
+    // expose admin helper
+    window.studentwell = window.studentwell || {};
+    window.studentwell.addQuestionToBank = function(id, text, scaleArr){
+      QUESTION_BANK.push({ id, text, scale: scaleArr });
+    };
+  </script>
+  <script src="site-nav.js"></script>
+  <script src="nav-scroll.js"></script>
+</body>
+</html>

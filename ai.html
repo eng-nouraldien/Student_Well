@@ -1,0 +1,529 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-7PB5B8C26W"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-7PB5B8C26W');
+</script>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Student Well — مساعد ذكي</title>
+  <link rel="stylesheet" href="styles.css">
+<style>
+/* ===== AI PAGE — LAYOUT ONLY (NO COLORS) ===== */
+
+.ai-page main > header {
+  max-width: 1100px;
+  margin: 18px auto;
+  padding: 20px 16px;
+  text-align: center;
+}
+
+.ai-page .grid {
+  display: grid;
+  grid-template-columns: 1fr 380px;
+  gap: 18px;
+}
+
+.ai-page .chat {
+  height: 520px;
+  overflow: auto;
+  padding: 12px;
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.ai-page .msg {
+  max-width: 86%;
+  padding: 10px;
+  border-radius: 12px;
+}
+
+.ai-page .controls {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+@media (max-width: 980px) {
+  .ai-page .grid {
+    grid-template-columns: 1fr;
+  }
+  .ai-page .chat {
+    height: 360px;
+  }
+}
+</style>
+</head>
+<body class="ai-page">
+<main id="main" class="page">
+ <header class="page-hero">
+  <div class="page-hero-box">
+    <h1>Student Well — المساعد الذكي</h1>
+    <p>
+      مساعد ذكي يقدّم اقتراحات فورية لدعم صحتك النفسية،
+      ويفهم مشكلتك ويقترح خطوة عملية بسرعة.
+    </p>
+  </div>
+</header>
+
+    <div class="grid">
+      <!-- Main -->
+      <section class="card" aria-labelledby="mainTitle">
+        <h2 id="mainTitle">توصيات شخصية ومساعد دردشة</h2>
+        <p class="meta-small">اكتب وصفًا قصيرًا لمشكلتك (مثال: "نومي وحش" ، "قلق من الامتحان" ، "مش قادر أركز") — أو استعمل أزرار السريعة.</p>
+
+        <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap">
+          <button class="small-link" data-quick="نومي وحش">نومي وحش</button>
+          <button class="small-link" data-quick="قلق قبل الامتحان">قلق قبل الامتحان</button>
+          <button class="small-link" data-quick="عايز تركيز للمذاكرة">تركيز للمذاكرة</button>
+          <button class="small-link" data-quick="حسيت بحزن">حزن</button>
+          <button class="small-link" data-quick="عايز خطة نوم">خطة نوم</button>
+        </div>
+
+        <hr style="margin:12px 0">
+
+        <div class="rec" id="lastRecs" aria-live="polite">
+          <strong>موجز سريع:</strong>
+          <div id="lastRecsText" style="margin-top:8px">اضغط "تنبأ" أو اكتب سؤالك.</div>
+        </div>
+
+        <div style="margin-top:12px">
+          <button id="analyzeLast">تنبأ بالتوصيات من آخر استبيان محفوظ</button>
+         <button id="aiToolBtn" type="button" class="small-link">
+   اسأل مساعد ذكاء اصطناعي خارجي 
+</button>
+  <small style="display:block;margin-top:6px;color:var(--muted)">
+  سيتم فتح مساعد ذكاء اصطناعي للإجابة الفورية
+</small>
+
+      </div>
+
+        <hr style="margin:12px 0">
+
+        <div class="meta-small">ملاحظة: النموذج يعمل محليًا ويمتثل لخصوصية المستخدم — لو ظهرت مؤشرات خطر (أفكار إيذاء أو انتحار)، البوت هيعرض توجيهات فورية وروابط مساعدة وخيارات للتواصل مع متخصصين.</div>
+      </section>
+
+      <!-- Sidebar chat -->
+      <aside class="card">
+        <h3>مساعد دردشة متقدم</h3>
+        <div class="chat" id="chatBox" role="log" aria-live="polite">
+          <!-- رسائل تظهر هنا -->
+        </div>
+
+        <div class="controls">
+          <input id="chatInput" type="text" placeholder="اكتب هنا... مثال: 'قلق قبل الامتحان'">
+          <button id="chatSend">أرسل</button>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:8px">
+          <button id="clearChat" style="background:#eef6fb;color:var(--accent);border:1px solid #d7edf9">تفريغ الدردشة</button>
+          <button id="exportChat" style="background:#fff;color:var(--accent);border:1px solid #d7edf9">تصدير المحادثة</button>
+        </div>
+      </aside>
+    </div>
+  </main>
+
+<script>
+/* Improved local chatbot script for StudentWell
+   - Fixed Arabic intent detection (uses keyword arrays & includes)
+   - Simplified recommendations mapping
+   - Robust DOM checks
+*/
+
+const KEYWORDS = {
+  sleep: ['نوم','نومي','أنام','ما بنام','منام','قلة النوم','قليل النوم'],
+  anxiety: ['قلق','توتر','خايف','خايفة','مضطرب','توتر'],
+  concentration: ['تركيز','مذاكرة','مش قادر أركز','بصرف','صعوبة التركيز'],
+  mood: ['حزين','زعلان','مكتئب','مزاج','حزن'],
+  motivation: ['متحمس','مش متحمس','عايز أبدأ','مش لاقي حافز','دافع'],
+  social: ['وحشني','عزلة','نفسي في صحاب','وحشه الناس'],
+  panic: ['نوبة هلع','مخنوق','ذبحة','ذبحة صدرية'], 
+  suicidal: ['انتحار','أقتل نفسي','عايز أموت','نفسي أموت','موت أحسن'],
+  help: ['محتاج مساعدة','عايز حد','أطلب مساعدة'],
+  sleep_plan: ['خطة نوم','نظام نوم','تحسين النوم','روتين نوم']
+};
+
+const POSITIVE_WORDS = ['كويس','حلو','تمام','فرح','مبسوط','مرتاح','نجاح','تحسن','متحسن'];
+const NEGATIVE_WORDS = ['حزين','زعلان','مخنوق','قلق','توتر','مرهق','تعبان','انهيار','مهموم','انتحار','نفسي أموت'];
+
+const RECS = {
+  sleepPlan: {title:'خطة نوم بسيطة', text:'حاول تقلل الشاشات قبل النوم 30 دقيقة، نم بروتين ثابت، وجرّب تمرين تنفّس 5 دقائق قبل النوم.', link:'plans.html#sleep'},
+  breathing: {title:'تمارين تنفُّس', text:'تمرّن تنفّس 4-4-4 أو 4-6-8 لثلاث دورات لتقليل التوتر الفوري.', link:'plans.html#breath'},
+  pomodoro: {title:'جلسة بومودورو', text:'ركّز 25 دقيقة ثم خد 5 دقائق استراحة — مفيد للتركيز.', link:'plans.html#pomodoro'},
+  talk: {title:'تكلّم مع حد موثوق', text:'لو الحالة مستمرة، فكّر تتكلم مع صديق/مرشد جامعي/أخصائي.' , link:'contact.html'},
+  walk: {title:'مشي قصير', text:'مشي 10-15 دقيقة يساعد على تغيير المزاج بسرعة.', link:'plans.html#walk'},
+  grounding: {title:'تمارين تأريض (Grounding)', text:'حاول تقنية 5-4-3-2-1 للتخفيف من نوبات القلق.', link:'plans.html#grounding'},
+};
+
+// normalize Arabic: remove tashkeel, punctuation, collapse spaces, lower
+function normalizeText(s){
+  return (s||'').replace(/[ًٌٍَُِّْ]/g,'')
+                 .replace(/[.,\/#!$%\^&\*;:{}=\-_`~()؟؟«»"’'ـ]/g,' ')
+                 .replace(/\s+/g,' ')
+                 .trim()
+                 .toLowerCase();
+}
+
+// detect intents using keyword arrays (Arabic-friendly)
+function detectIntents(text){
+  const norm = normalizeText(text);
+  const intents = {};
+  for(const [intent, kws] of Object.entries(KEYWORDS)){
+    for(const kw of kws){
+      if(norm.includes(kw)){
+        intents[intent] = (intents[intent] || 0) + 1;
+      }
+    }
+  }
+  return intents;
+}
+
+function sentimentScore(text){
+  const norm = normalizeText(text);
+  const words = norm.split(/\s+/);
+  let score = 0;
+  for(const w of words){
+    if(POSITIVE_WORDS.includes(w)) score += 1;
+    if(NEGATIVE_WORDS.includes(w)) score -= 1;
+  }
+  return score;
+}
+
+function extractKeywords(text){
+  const norm = normalizeText(text);
+  const words = norm.split(/\s+/).filter(w=>w.length>2);
+  return [...new Set(words)].slice(0,6);
+}
+
+function generateResponse(userInput){
+  const raw = userInput || '';
+  const text = normalizeText(raw);
+  const intents = detectIntents(raw);
+  const keywords = extractKeywords(raw);
+  const sent = sentimentScore(raw);
+
+  let reply = '';
+  let confidence = 0.45;
+  let recommended = [];
+
+  // Critical suicidal handling (strong keywords)
+  const suicidalMatch = KEYWORDS.suicidal.some(k=> raw.includes(k));
+  if(suicidalMatch){
+    confidence = 0.99;
+    reply = "لو بتفكّر في إيذاء نفسك أو الانتحار، ده موقف خطير. لو أنت في مصر اتصل بالطوارئ فورًا أو توجه لأقرب مستشفى — لو مش في مصر اتصل برقم الطوارئ المحلي. إذا تحب أديك خطوات تهدئة فورية أو نفتح صفحة موارد طوارئ، قلّي.";
+    return {reply, confidence, recommended, intents, sent, keywords, critical:true};
+  }
+
+  // Anxiety / panic
+  if(intents.anxiety || intents.panic){
+    confidence = Math.max(confidence, 0.85);
+    recommended.push('breathing','grounding');
+    reply = "باين عليك توتر أو خوف. جرّب تمرين تنفّس (تنفّس 4 — احبس 4 — زفر 4) 3 مرات. ممكن أقدملك خطوات تأريض 5-4-3-2-1 لو تحب.";
+    return {reply, confidence, recommended, intents, sent, keywords};
+  }
+
+  // Sleep issues
+  if(intents.sleep || intents.sleep_plan){
+    confidence = Math.max(confidence, 0.8);
+    recommended.push('sleepPlan');
+    reply = "مشاكل النوم شائعة. نصيحتي: ثبّت مواعيد نوم/صحوة، قلل الشاشات قبل النوم، وجرب تمرين تنفّس قصير 5 دقائق. تحب خطة نوم يومية قصيرة؟";
+    return {reply, confidence, recommended, intents, sent, keywords};
+  }
+
+  // Concentration
+  if(intents.concentration){
+    confidence = Math.max(confidence, 0.78);
+    recommended.push('pomodoro');
+    reply = "لو التركيز مشكلة جرب تقنية بومودورو: 25 دقيقة عمل مركز ثم 5 دقائق راحة. أقدر أجهز لك خطة جلسة لو تحب.";
+    return {reply, confidence, recommended, intents, sent, keywords};
+  }
+
+  // Mood / social
+  if(intents.mood || intents.social){
+    confidence = Math.max(confidence, 0.7);
+    recommended.push('talk','walk');
+    reply = "واضح إنك بتتكلّم عن المزاج أو الشعور بالعزلة. حاول تتكلم مع حد موثوق أو تطلع تمشّي 10-15 دقيقة. عايز خطوات صغيرة لبدء محادثة؟";
+    return {reply, confidence, recommended, intents, sent, keywords};
+  }
+
+  // Motivation
+  if(intents.motivation){
+    confidence = Math.max(confidence, 0.65);
+    recommended.push('pomodoro');
+    reply = "لإعادة الحافز قسّم المهام لقطع صغيرة واحتفل بكل إنجاز. تحب روتين بسيط لليوم؟";
+    return {reply, confidence, recommended, intents, sent, keywords};
+  }
+
+  if(intents.help){
+    confidence = Math.max(confidence, 0.6);
+    reply = "أكيد — قلّي باختصار محتاج إيه: نوم، قلق، مذاكرة، ولا حاجة تانية؟";
+    return {reply, confidence, recommended, intents, sent, keywords};
+  }
+
+  if(text.length < 3){
+    reply = "اكتب سطر بسيط عن المشكلة (مثال: 'نومي وحش' أو 'قلق قبل الامتحان')، وهرد عليك بخطوات عملية.";
+    confidence = 0.4;
+    return {reply, confidence, recommended, intents, sent, keywords};
+  }
+
+  if(sent < 0){
+    confidence = 0.6;
+    reply = "باين عليك حالة سلبية شوية. نبدأ بخطوات تهدئة قصيرة (تنفّس/مشي قصير) ونشوف بعدين؟";
+    recommended.push('breathing','walk');
+    return {reply, confidence, recommended, intents, sent, keywords};
+  } else if(sent > 0){
+    confidence = 0.6;
+    reply = "كويس إنك بتحس تحسّن نسبيًا — ممكن أديك نصائح للحفاظ على الحالة أو رفعها لو تحب.";
+    recommended.push('pomodoro');
+    return {reply, confidence, recommended, intents, sent, keywords};
+  }
+
+  confidence = 0.45;
+  reply = " جرّب تكتب كلمة مفتاحية (مثال: 'نومي وحش'، 'توتر قبل الامتحان'). لو تحب أعمل بحث سريع على الإنترنت لمصادر موثوقة عندي زرّ للبحث.";
+  return {reply, confidence, recommended, intents, sent, keywords};
+}
+
+// ----------- DOM & UI logic ---------------
+const chatBox = document.getElementById('chatBox');
+const chatInput = document.getElementById('chatInput');
+const chatSend = document.getElementById('chatSend');
+const clearChatBtn = document.getElementById('clearChat');
+const exportChatBtn = document.getElementById('exportChat');
+const lastRecsText = document.getElementById('lastRecsText');
+const googleFallbackBtn = document.getElementById('googleFallback');
+const quickBtns = document.querySelectorAll('[data-quick]');
+const analyzeLastBtn = document.getElementById('analyzeLast');
+
+function appendMessage(text, who='bot', meta=''){
+  if(!chatBox) return;
+  const div = document.createElement('div');
+  div.className = 'msg ' + (who==='user' ? 'user' : 'bot');
+  div.innerHTML = `<div>${escapeHtml(text)}</div>` + (meta ? `<div class="confidence">${escapeHtml(meta)}</div>` : '');
+  chatBox.appendChild(div);
+  chatBox.scrollTop = chatBox.scrollHeight;
+}
+
+function escapeHtml(s){
+  return (s||'').replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; });
+}
+
+function handleUserInput(raw){
+  if(!raw || !raw.trim()) return;
+  appendMessage(raw, 'user');
+  if(chatInput) chatInput.value = '';
+  const out = generateResponse(raw);
+
+  if(out.critical){
+    appendMessage(out.reply, 'bot', `ثقة: ${(out.confidence*100).toFixed(0)}% — حالة حرجة`);
+    if(!chatBox) return;
+    const em = document.createElement('div');
+    em.className = 'danger';
+    em.innerHTML = `<strong>لو أنت في خطر الآن:</strong>
+      <div>اتصل بالطوارئ المحلي فورًا أو توجه لأقرب مستشفى. لو أنت في مصر حاول تواصل مع خدمات الطوارئ النفسية المحلية.</div>
+      <div style="margin-top:8px"><a href="#" id="searchLocalHelp" class="small-link">ابحث عن خطوط مساعدة محلية</a></div>`;
+    chatBox.appendChild(em);
+    const btn = em.querySelector('#searchLocalHelp');
+    if(btn) btn.addEventListener('click', (e)=>{ e.preventDefault(); const q = encodeURIComponent('mental health hotline ' + (navigator.language || '')); window.open('https://www.google.com/search?q=' + q, '_blank'); });
+    chatBox.scrollTop = chatBox.scrollHeight;
+    return;
+  }
+
+  let meta = `ثقة: ${(out.confidence*100).toFixed(0)}%`;
+  if(out.recommended && out.recommended.length){
+    const titles = out.recommended.map(k => (RECS[k] && RECS[k].title) ? RECS[k].title : null).filter(Boolean);
+    if(titles.length) meta += ' — توصية: ' + titles.slice(0,3).join(', ');
+  }
+  appendMessage(out.reply, 'bot', meta);
+
+  if(out.recommended && out.recommended.length && chatBox){
+    const box = document.createElement('div');
+    box.className = 'msg bot';
+    box.style.padding = '8px';
+    const inner = out.recommended.map(k=>{
+      const r = RECS[k];
+      if(!r) return '';
+      return `<div style="margin-bottom:6px"><strong>${r.title}</strong><div>${r.text}</div><a class="small-link" href="${r.link}" target="_blank">افتح الخطة</a></div>`;
+    }).join('');
+    box.innerHTML = inner;
+    chatBox.appendChild(box);
+    chatBox.scrollTop = chatBox.scrollHeight;
+  }
+
+  if(lastRecsText) lastRecsText.textContent = out.reply;
+}
+
+// bind quick buttons
+if(quickBtns){
+  quickBtns.forEach(b=>{
+    b.addEventListener('click', ()=> {
+      const q = b.getAttribute('data-quick');
+      handleUserInput(q);
+    });
+  });
+}
+
+if(chatSend) chatSend.addEventListener('click', ()=> handleUserInput(chatInput.value || ''));
+if(chatInput) chatInput.addEventListener('keydown', e=> { if(e.key === 'Enter'){ e.preventDefault(); if(chatSend) chatSend.click(); }});
+
+if(clearChatBtn) clearChatBtn.addEventListener('click', ()=> {
+  if(!confirm('تفريغ المحادثة؟')) return;
+  if(chatBox) chatBox.innerHTML = '<div class="chat-empty">اكتب سؤالك أو استخدم الأزرار السريعة</div>';
+});
+
+if(exportChatBtn) exportChatBtn.addEventListener('click', ()=>{
+  if(!chatBox) return;
+  const msgs = Array.from(chatBox.querySelectorAll('.msg')).map(m=>({
+    who: m.classList.contains('user') ? 'user' : 'bot',
+    text: m.textContent.trim()
+  }));
+  const data = JSON.stringify({t: Date.now(), conversation: msgs}, null, 2);
+  const blob = new Blob([data], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href = url; a.download = 'studentwell_chat.json'; a.click(); URL.revokeObjectURL(url);
+});
+
+if (googleFallbackBtn) {
+  googleFallbackBtn.addEventListener("click", () => {
+    window.open("https://www.google.com", "_blank");
+  });
+}
+
+if(analyzeLastBtn) analyzeLastBtn.addEventListener('click', ()=>{
+  try{
+    const hist = JSON.parse(localStorage.getItem('studentwell_history') || '[]');
+    if(!hist || hist.length === 0){ alert('لا توجد سجلات استبيان محفوظة'); return; }
+    const last = hist[hist.length - 1];
+    const vals = last.vals || [];
+    const mood = vals[4] !== undefined ? vals[4] : 2;
+    const sleep = vals[1] !== undefined ? vals[1] : 2;
+    const stress = vals[0] !== undefined ? vals[0] : 2;
+    const summary = `الاستبيان الأخير — درجة: ${last.score || '?'}؛ نوم:${sleep}؛ توتر:${stress}؛ مزاج:${mood}.`;
+    handleUserInput('استنتج من: ' + summary);
+  }catch(e){
+    alert('فشل تحميل السجل: ' + e.message);
+  }
+});
+
+// init
+(function init(){
+  if(chatBox) chatBox.innerHTML = '<div class="chat-empty">أهلاً! اكتب مشكلتك أو اختَر زرًا سريعًا لبدء المساعدة.</div>';
+  setTimeout(()=> {
+    handleUserInput('أهلاً! أنا هنا علشان أساعدك. اكتب مشكلتك بكلمة أو جملة صغيرة.');
+  }, 300);
+})();
+</script>
+<script src="site-nav.js"></script>
+<script src="nav-scroll.js"></script>
+<!-- AI Tools Modal -->
+<div id="aiModal" class="ai-modal hidden">
+  <div class="ai-box">
+    <h3> اختر أداة ذكاء اصطناعي</h3>
+
+    <button class="ai-btn" data-tool="chatgpt">ChatGPT</button>
+    <button class="ai-btn" data-tool="perplexity">Perplexity</button>
+    <button class="ai-btn" data-tool="copilot">Microsoft Copilot</button>
+   <button class="ai-btn" data-tool="gemini">Gemini</button>
+
+    <button id="otherAiBtn" class="ai-btn secondary">أخرى</button>
+
+    <div id="otherAiInput" class="hidden">
+      <input
+        type="text"
+        id="customAiName"
+        placeholder="اكتب اسم الأداة (مثال: BlackBox)"
+      />
+      <button id="openCustomAi" class="ai-btn">افتح الأداة</button>
+    </div>
+
+    <button id="closeAiModal" class="close-btn">إغلاق</button>
+  </div>
+</div>
+<script>
+const aiModal = document.getElementById("aiModal");
+const openAiModalBtn = document.getElementById("aiToolBtn"); // زر "تحدث مع مساعد ذكاء اصطناعي"
+const closeAiModal = document.getElementById("closeAiModal");
+
+const otherAiBtn = document.getElementById("otherAiBtn");
+const otherAiInput = document.getElementById("otherAiInput");
+const openCustomAi = document.getElementById("openCustomAi");
+const customAiName = document.getElementById("customAiName");
+
+/* ================= فتح / غلق المودال ================= */
+
+openAiModalBtn.addEventListener("click", (e) => {
+  e.preventDefault();
+  aiModal.classList.remove("hidden");
+});
+
+closeAiModal.addEventListener("click", () => {
+  aiModal.classList.add("hidden");
+  otherAiInput.classList.add("hidden");
+  customAiName.value = "";
+});
+
+/* ================= الأدوات الجاهزة ================= */
+
+document.querySelectorAll(".ai-btn[data-tool]").forEach(btn => {
+  btn.addEventListener("click", () => {
+    const tool = btn.dataset.tool;
+
+  const urls = {
+  chatgpt: "https://chat.openai.com",
+  perplexity: "https://www.perplexity.ai/",
+  copilot: "https://copilot.microsoft.com/",
+  gemini: "https://gemini.google.com/"
+};
+
+
+    // حفظ آخر أداة استخدمها
+    localStorage.setItem("last_ai_tool", tool);
+
+    window.open(urls[tool], "_blank");
+    aiModal.classList.add("hidden");
+  });
+});
+
+/* ================= زر (أخرى) ================= */
+
+otherAiBtn.addEventListener("click", () => {
+  otherAiInput.classList.toggle("hidden");
+});
+
+/* ================= فتح أداة مخصصة (بحث Google فقط) ================= */
+
+openCustomAi.addEventListener("click", () => {
+  const name = customAiName.value.trim();
+  if (!name) return;
+
+  // حفظ آخر أداة
+  localStorage.setItem("last_ai_tool", name);
+
+  // بحث Google باسم الأداة فقط (بدون فتح دومين)
+  const searchUrl =
+    "https://www.google.com/search?q=" +
+    encodeURIComponent(name + " AI tool");
+
+  window.open(searchUrl, "_blank");
+
+  aiModal.classList.add("hidden");
+  otherAiInput.classList.add("hidden");
+  customAiName.value = "";
+});
+
+/* ================= (اختياري) تمييز آخر أداة ================= */
+
+const lastTool = localStorage.getItem("last_ai_tool");
+if (lastTool) {
+  const btn = document.querySelector(`.ai-btn[data-tool="${lastTool}"]`);
+  if (btn) btn.classList.add("last-used");
+}
+</script>
+</body>
+</html>
