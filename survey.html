@@ -283,9 +283,13 @@
   .safety-msg a, .sw-modal-card a{ color:var(--accent); font-weight:800 }
   .sw-modal{ position:fixed; inset:0; background:rgba(15,40,60,0.45); display:flex; align-items:center; justify-content:center; padding:16px; z-index:9999 }
   .sw-modal[hidden]{ display:none }
-  .sw-modal-card{ position:relative; max-width:520px; width:100%; background:var(--card); color:var(--text); border-radius:18px; padding:24px 22px 20px; box-shadow:0 20px 60px rgba(0,0,0,0.25); border-top:5px solid #2f9e92; line-height:1.9 }
+  .sw-modal-card{ position:relative; max-width:520px; width:100%; max-height:90vh; overflow:auto; background:var(--card); color:var(--text); border-radius:18px; padding:24px 22px 20px; box-shadow:0 20px 60px rgba(0,0,0,0.25); border-top:5px solid #2f9e92; line-height:1.9 }
   .sw-modal-card h3{ margin:0 0 10px; color:var(--accent) }
   .sw-modal-card p{ margin:0 0 16px }
+  .sw-modal-card > .btn{ margin-top:16px; width:100% }
+  .sw-contacts{ display:flex; gap:10px; flex-wrap:wrap; margin-top:12px }
+  .sw-contact{ flex:1 1 200px; display:flex; flex-direction:column; align-items:center; gap:2px; padding:10px 12px; border-radius:12px; background:rgba(47,158,146,0.12); border:1px solid rgba(47,158,146,0.4); text-decoration:none; color:var(--text); font-size:13px }
+  .sw-contact b{ font-size:20px; color:var(--accent) }
   .sw-modal-x{ position:absolute; top:10px; left:12px; background:transparent; border:0; font-size:22px; cursor:pointer; color:var(--muted); box-shadow:none; padding:4px 8px }
   .alert-box{ margin-top:10px; padding:10px 14px; border-radius:10px; background:rgba(47,111,168,0.08); border:1px solid rgba(47,158,146,0.30); line-height:1.8 }
   .domain-list{ margin-top:12px; display:flex; flex-direction:column; gap:8px }
@@ -362,6 +366,7 @@
           <div id="safetyResult" class="safety-msg" role="alert" hidden></div>
           <div class="score" id="scoreDisplay">مؤشر الراحة النفسية: - / 100</div>
           <div id="bandLabel" style="color:var(--muted);margin:4px 0 8px"></div>
+          <div style="color:var(--muted);font-size:13px;line-height:1.7;margin-bottom:8px">تأمل ذاتي وليس تشخيصًا. الأسئلة وحد التنبيه (50) من تصميمنا وليست مقياسًا طبيًا معتمدًا.</div>
           <div class="meter" aria-hidden><span id="meterBar" style="width:0%"></span></div>
           <div id="alertBox" class="alert-box" role="alert" hidden></div>
           <div id="domainList" class="domain-list"></div>
@@ -372,7 +377,7 @@
           </div>
 
           <div class="help-note" role="note" style="margin-top:14px;padding:12px 14px;border-radius:12px;background:rgba(47,158,146,0.12);line-height:1.8;font-size:14px">
-            <strong>مهم:</strong> النتيجة إرشادية فقط وليست تشخيصًا. لو حاسس إنك مش قادر تتحمل أو بتفكر تؤذي نفسك، كلم حد قريب منك أو مختص النهارده.<br>
+            <strong>مهم:</strong> النتيجة إرشادية فقط وليست تشخيصًا، وهي تأمل ذاتي: الأسئلة وحد التنبيه (50) من تصميمنا وليست مقياسًا طبيًا معتمدًا. لو حاسس إنك مش قادر تتحمل أو بتفكر تؤذي نفسك، كلم حد قريب منك أو مختص النهارده.<br>
             الخط الساخن للصحة النفسية في مصر (مجاني): <a href="tel:08008880700" dir="ltr" style="display:inline;background:none;box-shadow:none;padding:0;border-radius:0;color:var(--accent);font-weight:800;text-decoration:underline">08008880700</a> أو <a href="tel:16328" dir="ltr" style="display:inline;background:none;box-shadow:none;padding:0;border-radius:0;color:var(--accent);font-weight:800;text-decoration:underline">16328</a>. وفي الخطر الفوري اتصل بالإسعاف <a href="tel:123" dir="ltr" style="display:inline;background:none;box-shadow:none;padding:0;border-radius:0;color:var(--accent);font-weight:800;text-decoration:underline">123</a>.
           </div>
 
@@ -393,6 +398,15 @@
 
   </main>
 
+  <div id="safetyModal" class="sw-modal" hidden role="dialog" aria-modal="true" aria-labelledby="safetyModalTitle">
+    <div class="sw-modal-card">
+      <button type="button" class="sw-modal-x" id="safetyModalX" aria-label="إغلاق">&times;</button>
+      <h3 id="safetyModalTitle">رسالة صغيرة ليك</h3>
+      <p id="safetyModalText"></p>
+      <div id="safetyModalContacts" class="sw-contacts"></div>
+      <button type="button" class="btn" id="safetyModalClose">تمام، فهمت</button>
+    </div>
+  </div>
   <script>
     /* ====== Student Well survey v2 ====== */
     const SCALE = ['أبدًا','نادرًا','أحيانًا','غالبًا','دائمًا'];
@@ -637,19 +651,32 @@
     const safetyModalText = document.getElementById('safetyModalText');
     const safetyModalClose = document.getElementById('safetyModalClose');
 
+    function contactsRow(){
+      const row = document.createElement('div');
+      row.className = 'sw-contacts';
+      [['الخط الساخن للصحة النفسية (مجاني)', '08008880700'], ['الإسعاف (خطر فوري)', '123']].forEach(([label, num]) => {
+        const a = document.createElement('a');
+        a.href = 'tel:' + num;
+        a.className = 'sw-contact';
+        a.setAttribute('dir', 'rtl');
+        const l = document.createElement('span');
+        l.textContent = label;
+        const n = document.createElement('b');
+        n.textContent = num;
+        n.setAttribute('dir', 'ltr');
+        a.appendChild(l); a.appendChild(n);
+        row.appendChild(a);
+      });
+      return row;
+    }
     function fillSafetyText(el){
-      el.textContent = '';
-      const parts = SAFETY_MESSAGE.split('08008880700');
-      el.appendChild(document.createTextNode(parts[0]));
-      const a = document.createElement('a');
-      a.href = 'tel:08008880700';
-      a.setAttribute('dir', 'ltr');
-      a.textContent = '08008880700';
-      el.appendChild(a);
-      el.appendChild(document.createTextNode(parts.slice(1).join('08008880700')));
+      el.textContent = SAFETY_MESSAGE;
+      el.appendChild(contactsRow());
     }
     function openSafetyModal(){
-      fillSafetyText(safetyModalText);
+      safetyModalText.textContent = SAFETY_MESSAGE;
+      const oldRow = document.getElementById('safetyModalContacts');
+      oldRow.replaceWith(Object.assign(contactsRow(), { id:'safetyModalContacts' }));
       safetyModal.hidden = false;
       safetyModalClose.focus();
     }
@@ -879,14 +906,6 @@
     setMode(mode);
     renderHistory();
   </script>
-  <div id="safetyModal" class="sw-modal" hidden role="dialog" aria-modal="true" aria-labelledby="safetyModalTitle">
-    <div class="sw-modal-card">
-      <button type="button" class="sw-modal-x" id="safetyModalX" aria-label="إغلاق">&times;</button>
-      <h3 id="safetyModalTitle">رسالة صغيرة ليك</h3>
-      <p id="safetyModalText"></p>
-      <button type="button" class="btn" id="safetyModalClose">تمام، فهمت</button>
-    </div>
-  </div>
   <script src="site-nav.js"></script>
   <script src="nav-scroll.js"></script>
 </body>
