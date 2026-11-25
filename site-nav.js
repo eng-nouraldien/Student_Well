@@ -107,7 +107,7 @@ const footerHtml = `
     </div>
     <div class="page-credit" style="margin-top:6px;font-size:12px;opacity:0.85">
       Designed & Developed by <br>
-      Eng Nour Aldien
+      Eng. Nour Aldien Mahmoud
     </div>
   </div>
 `;
