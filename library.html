@@ -420,6 +420,16 @@ textarea::placeholder{
     function loadFavs(){ try { return JSON.parse(localStorage.getItem(FAV_KEY) || '[]'); } catch(e){ return []; } }
     function saveFavs(arr){ localStorage.setItem(FAV_KEY, JSON.stringify(arr)); }
 
+    function getIcon(type){
+      switch(type){
+        case "video": return "🎥";
+        case "article": return "📄";
+        case "pdf": return "📘";
+        case "tool": return "🛠️";
+        default: return "📌";
+      }
+    }
+
     // Render resources list
     function renderResources(list){
       resourcesEl.innerHTML = '';
