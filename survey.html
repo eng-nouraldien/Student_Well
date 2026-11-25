@@ -288,6 +288,8 @@
   .sw-modal-card p{ margin:0 0 16px }
   .sw-modal-card > .btn{ margin-top:16px; width:100% }
   .sw-contacts{ display:flex; gap:10px; flex-wrap:wrap; margin-top:12px }
+  .emergency-foot{ max-width:1000px; margin:14px auto 0; padding:10px 16px; text-align:center; color:var(--muted); font-size:14px; line-height:1.8 }
+  .emergency-foot a{ color:var(--accent); font-weight:800 }
   .sw-contact{ flex:1 1 200px; display:flex; flex-direction:column; align-items:center; gap:2px; padding:10px 12px; border-radius:12px; background:rgba(47,158,146,0.12); border:1px solid rgba(47,158,146,0.4); text-decoration:none; color:var(--text); font-size:13px }
   .sw-contact b{ font-size:20px; color:var(--accent) }
   .sw-modal-x{ position:absolute; top:10px; left:12px; background:transparent; border:0; font-size:22px; cursor:pointer; color:var(--muted); box-shadow:none; padding:4px 8px }
@@ -398,6 +400,8 @@
 
   </main>
 
+  <div class="emergency-foot" role="note">في حالة خطر فوري على حياتك أو حياة حد: اتصل بالإسعاف <a href="tel:123" dir="ltr">123</a></div>
+
   <div id="safetyModal" class="sw-modal" hidden role="dialog" aria-modal="true" aria-labelledby="safetyModalTitle">
     <div class="sw-modal-card">
       <button type="button" class="sw-modal-x" id="safetyModalX" aria-label="إغلاق">&times;</button>
@@ -466,10 +470,8 @@
     const SAFETY_Q = 'كم مرة راودتك أفكار بأنك تؤذي نفسك، أو أن الحياة ليست جديرة بأن تُعاش؟';
 
     const SAFETY_MESSAGE =
-      'واضح إنك بتمر بفترة مش كويسة. ممكن تكون محتاج تتكلم مع حد قريب منك أو مع مختص، وده مش عيب ولا معناه إنك مريض نفسي. كلنا بنمر بفترات صعبة. ' +
-      'لو بتفكر تؤذي نفسك أو الحياة تقيلة عليك قوي، كلّم النهارده حد تثق فيه من أهلك أو أصحابك، ومتفضلش لوحدك. ' +
-      'وتقدر تتصل بالخط الساخن للصحة النفسية في مصر (مجاني): 08008880700. ' +
-      'ولو في خطر فوري على حياتك أو حياة حد، اتصل بالإسعاف 123 أو روح لأقرب طوارئ. ' +
+      'واضح إنك بتمر بفترة مش كويسة. ممكن تكون محتاج تتكلم مع حد قريب منك أو مع مختص. ' +
+      'تقدر كمان تكلم الخط الساخن للصحة النفسية في مصر (مجاني): 08008880700 — اللي بيرد عليك مختص، تقدر تفضفض له بحرية ومن غير ما حد يعرف حد، وممكن يحولك لدكتور نفسي لو احتجت. ' +
       'النتيجة هنا مش تشخيص، هي بس إشارة تستاهل اهتمام.';
 
     // ملاحظة لطيفة قبل نصايح كل مجال (الجملة بعد "لاحظنا إن")
@@ -654,7 +656,7 @@
     function contactsRow(){
       const row = document.createElement('div');
       row.className = 'sw-contacts';
-      [['الخط الساخن للصحة النفسية (مجاني)', '08008880700'], ['الإسعاف (خطر فوري)', '123']].forEach(([label, num]) => {
+      [['اتصل بالخط الساخن للصحة النفسية (مجاني)', '08008880700']].forEach(([label, num]) => {
         const a = document.createElement('a');
         a.href = 'tel:' + num;
         a.className = 'sw-contact';
