@@ -173,6 +173,7 @@
           <div>
             <h3>جلسة بومودورو مصغرة — 25/5</h3>
             <p>وقت مركّز 25 دقيقة ثم راحة 5 دقائق. طريقة مثبتة لزيادة التركيز وتقليل إرهاق المهام الطويلة.</p>
+            <p style="font-size:14px;color:var(--muted)">الطريقة: 25 دقيقة تركيز + 5 دقائق استراحة. خلي الاستراحة مقصودة وبعيد عن الموبايل: امشي شوية، اشرب حاجة، أو خد لحظة هدوء.</p>
           </div>
 
           <div style="display:flex;flex-direction:column;gap:8px">
@@ -183,30 +184,13 @@
             <div class="actions">
   <button class="btn primary" id="startPomo">ابدأ</button>
   <button class="btn ghost" id="stopPomo">إيقاف</button>
+  <button class="btn ghost" id="resetPomo">ريسيت</button>
   <button class="btn ghost small" id="breakNow">استراحة الآن</button>
   <button class="btn small ghost" id="savePomo">حفظ كمفضل</button>
   <button class="btn small ghost" id="cancelBreak" style="display:none">إلغاء الاستراحة</button>
 </div>
 
             <div style="font-size:13px;color:var(--muted)">نصيحة: قبل البدء اغلق الإشعارات لمدة 30 دقيقة لزيادة الفاعلية.</div>
-          </div>
-        </article>
-
-        <!-- Micro-break card -->
-        <article class="card" id="card-break">
-          <div>
-            <h3>استراحة مرشدة — 5 دقائق</h3>
-            <p>سلسلة خطوات بسيطة: قف، اشرب ماء، تنفس، وتمدد خفيف. مناسب بعد 45 دقيقة من الجلوس.</p>
-          </div>
-
-          <div>
-            <div style="margin-bottom:8px;color:var(--muted)">ابدأ مؤقت 5 دقائق لطيفة</div>
-            <div class="actions">
-  <button class="btn primary" id="startBreak">ابدأ الاستراحة</button>
-  <button class="btn ghost small" id="endBreak">إنهاء الاستراحة</button>
-  <button class="btn ghost" id="saveBreak">حفظ كمفضل</button>
-</div>
-
           </div>
         </article>
 
@@ -302,7 +286,6 @@
 
     document.getElementById('saveBreath').addEventListener('click', ()=> saveFavorite('breath', {title:'تمرين تنفس 4-4-4'}));
     document.getElementById('savePomo').addEventListener('click', ()=> saveFavorite('pomo', {title:'جلسة بومودورو 25/5'}));
-    document.getElementById('saveBreak').addEventListener('click', ()=> saveFavorite('break', {title:'استراحة 5 دقائق'}));
       document.getElementById('clearFavs').addEventListener('click', ()=> {
       if(confirm('مسح كل المفضلات؟')) removeAllFavs();
     });
@@ -370,8 +353,6 @@
   const startBtn = document.getElementById('startPomo');
   const stopBtn  = document.getElementById('stopPomo');
   const breakNowBtn   = document.getElementById('breakNow');
-  const startBreakBtn = document.getElementById('startBreak');
-  const endBreakBtn   = document.getElementById('endBreak');
   const saveBtn = document.getElementById('savePomo');
 
   const WORK_TIME  = 25 * 60;
@@ -500,9 +481,15 @@ stopBtn.addEventListener('click', ()=>{
   pause();
 });
 
+  const resetBtn = document.getElementById('resetPomo');
+  if(resetBtn) resetBtn.addEventListener('click', ()=>{
+    if(timerId) clearInterval(timerId);
+    timerId = null; running = false;
+    mode = 'work'; total = WORK_TIME;
+    saveBtn.disabled = false;
+    updateUI(); saveState();
+  });
   breakNowBtn.addEventListener('click', forceBreak);
-  startBreakBtn.addEventListener('click', forceBreak);
-  endBreakBtn.addEventListener('click', endBreak);
   const cancelBreakBtn = document.getElementById('cancelBreak');
   if(cancelBreakBtn) cancelBreakBtn.addEventListener('click', endBreak);
 
