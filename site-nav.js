@@ -159,27 +159,3 @@ const footerHtml = `
   });
 
 })();
-
-/* ================= Utils ================= */
-function getIcon(type) {
-  switch (type) {
-    case "video": return "🎥";
-    case "article": return "📄";
-    case "pdf": return "📘";
-    case "tool": return "🛠️";
-    default: return "📌";
-  }
-}
-document.getElementById('resetPomo').addEventListener('click', ()=>{
-  if(timerId) clearInterval(timerId);
-  timerId = null;
-  running = false;
-  total = 25 * 60;
-  clock.textContent = format(total);
-  state.textContent = 'مستعد';
-});
-if ('Notification' in window) {
-  if (Notification.permission === 'default') {
-    Notification.requestPermission();
-  }
-}
