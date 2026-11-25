@@ -85,7 +85,7 @@
     }
     .service-media img {
       width: 100%;
-      height: 110px;
+      height: 130px;
       object-fit: cover;
       border-radius: 8px;
       margin-bottom: 12px;
@@ -110,6 +110,27 @@
       .hero-box { margin: 10px; }
       .services-header { padding: 0 12px; }
     }
+
+    .hero-main { padding: 36px 24px; background: linear-gradient(135deg, rgba(47,111,168,0.10), rgba(47,158,146,0.12)), var(--card); }
+    .hero-main h1 { font-size: 40px; margin-bottom: 10px; }
+    .hero-badge { display:inline-block; font-size:13px; padding:4px 12px; border-radius:999px; background:rgba(47,158,146,0.15); color:#1f7f74; font-weight:700; margin-bottom:10px; }
+    .hero-lead { font-size:19px; color: var(--text) !important; font-weight:600; max-width:640px !important; }
+    .hero-sub { margin-top:8px !important; font-size:15px; }
+    .hero-cta { display:flex; gap:12px; justify-content:center; flex-wrap:wrap; margin-top:22px; }
+    .hero-btn { display:inline-block; padding:12px 26px !important; font-size:16px; font-weight:700; border-radius:12px; text-decoration:none; background:linear-gradient(90deg,#2f6fa8,#2f9e92) !important; color:#fff !important; border:2px solid transparent; box-shadow:0 8px 20px rgba(47,111,168,0.25); }
+    .hero-btn-ghost { background:transparent !important; color: var(--accent) !important; border:2px solid var(--accent); box-shadow:none !important; }
+    .hero-note { margin-top:16px !important; font-size:13px; color:#4b5563; }
+    body.dark-mode .hero-main { background: linear-gradient(135deg, rgba(47,111,168,0.18), rgba(47,158,146,0.16)), var(--card); }
+    body.dark-mode .hero-lead { color:#e5e7eb !important; }
+    body.dark-mode .hero-note { color:#9ca3af; }
+    .about-dev { max-width:1100px; margin:28px auto 0; text-align:center; padding:22px !important; height:auto !important; }
+    .about-dev h3 { color:#1f4f73; margin-bottom:8px; }
+    body.dark-mode .about-dev h3 { color:#e5e7eb; }
+    .about-dev p { color: var(--muted); line-height:1.8; margin:4px 0; }
+    .tool-chips { display:flex; gap:8px; justify-content:center; flex-wrap:wrap; margin-top:12px; }
+    .tool-chips span { font-size:12px; padding:4px 12px; border-radius:999px; background:rgba(47,111,168,0.12); color:#1f4f73; font-weight:600; }
+    body.dark-mode .tool-chips span { color:#cbd5e1; }
+    @media (max-width:600px){ .hero-main h1{font-size:32px;} .hero-lead{font-size:17px;} .hero-btn{width:100%; text-align:center;} }
   </style>
 </head>
 <body>
@@ -118,13 +139,16 @@
   <main class="wrap">
     <!-- Hero -->
     <section style="padding-top:18px;text-align:center">
-      <div class="hero-box" role="banner" aria-label="Student Well hero">
+      <div class="hero-box hero-main" role="banner" aria-label="Student Well hero">
+        <span class="hero-badge">منصة للطلاب</span>
         <h1>Student Well</h1>
-        <p>موقع يساعد الطلاب على متابعة حالتهم النفسية وفهمها، وتقليل التوتر عبر استبيانات يومية، نصائح عملية، وخطة دعم بسيطة مبنية على عادات يومية.</p>
-<p style="margin-top:10px;font-size:14px;color:#4b5563">
-  لا يتم حفظ أي بيانات شخصية — النتائج إرشادية وليست تشخيصًا طبيًا.
-</p>
-
+        <p class="hero-lead">اعرف حالتك النفسية في أقل من دقيقتين، وابدأ خطة بسيطة تخفف التوتر وتحسن نومك وتركيزك.</p>
+        <p class="hero-sub">استبيان يومي، نصائح عملية، أهداف وتذكيرات، ومكتبة موارد. مفيش تسجيل، ومفيش بيانات شخصية بتتحفظ.</p>
+        <div class="hero-cta">
+          <a class="btn hero-btn" href="survey.html">ابدأ التقييم الآن</a>
+          <a class="btn hero-btn hero-btn-ghost" href="plans.html">شوف الخطط والنصائح</a>
+        </div>
+        <p class="hero-note">النتائج إرشادية وليست تشخيصًا طبيًا. لو حاسس إنك محتاج دعم، تواصل مع مختص.</p>
       </div>
     </section>
 
@@ -147,7 +171,7 @@
         <article class="card service" id="svc-survey" role="listitem">
           <div class="service-media">
             <!-- reliable survey-ish image (will display) -->
-            <img src="images/survey.jpg" alt="استبيان" loading ="lazy">
+            <img src="images/card-survey.svg" alt="استبيان">
           </div>
           <div class="service-body">
 <span style="
@@ -173,7 +197,7 @@
         <!-- Service: Plans -->
         <article class="card service" id="svc-plans" role="listitem">
           <div class="service-media">
-            <img src="https://images.unsplash.com/photo-1515378791036-0648a3ef77b2?auto=format&fit=crop&w=1200&q=80" alt="خطط ونصائح">
+            <img src="images/card-plans.svg" alt="خطط ونصائح">
           </div>
           <div class="service-body">
             <h3>خطط ونصائح فورية وبسيطة</h3>
@@ -187,7 +211,7 @@
         <!-- Service: Goals -->
         <article class="card service" id="svc-goals" role="listitem">
           <div class="service-media">
-            <img src="https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=1200&q=80" alt="اهداف وتذكيرات">
+            <img src="images/card-goals.svg" alt="اهداف وتذكيرات">
           </div>
           <div class="service-body">
             <h3>تذكيرات وأهداف</h3>
@@ -201,7 +225,7 @@
         <!-- Service: Library -->
         <article class="card service" id="svc-library" role="listitem">
           <div class="service-media">
-            <img src="https://images.unsplash.com/photo-1512820790803-83ca734da794?auto=format&fit=crop&w=1200&q=80" alt="مكتبة موارد">
+            <img src="images/card-library.svg" alt="مكتبة موارد">
           </div>
           <div class="service-body">
             <h3>مكتبة موارد</h3>
@@ -215,7 +239,7 @@
         <!-- Service: AI (image related to AI/tech) -->
         <article class="card service" id="svc-ai" role="listitem">
           <div class="service-media">
-            <img src="https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=1200&q=80" alt="نظام ذكي">
+            <img src="images/card-ai.svg" alt="نظام ذكي">
           </div>
           <div class="service-body">
             <h3>نظام ذكاء اصطناعي بسيط</h3>
@@ -229,7 +253,7 @@
         <!-- Service: Contact -->
         <article class="card service" id="svc-contact" role="listitem">
           <div class="service-media">
-            <img src="images/contact.jpg" alt="تواصل">
+            <img src="images/card-contact.svg" alt="تواصل">
           </div>
           <div class="service-body">
             <h3>تواصل معنا</h3>
@@ -261,6 +285,16 @@
         <h4>نصيحة للمساء</h4>
         <p>ابتعد عن الشاشات قبل النوم بنص ساعة وحاول تسجل 3 حاجات إيجابية حصلت النهاردة.</p>
       </div>
+    </section>
+
+    <!-- About the developer -->
+    <section class="card about-dev" aria-label="عن المطور">
+      <h3>عن المطور</h3>
+      <p>الموقع من تصميم وتطوير <strong>نور الدين محمود (Noureldeen Mahmoud)</strong>، طالب هندسة كهربا في المعهد التكنولوجي العالي بالعاشر من رمضان (HTI)، كمشروع هدفه يدعم الطلاب نفسيًا.</p>
+      <div class="tool-chips" aria-label="الأدوات المستخدمة">
+        <span>HTML5</span><span>CSS3</span><span>JavaScript</span><span>GitHub Pages</span><span>تصميم متجاوب RTL</span><span>Dark Mode</span>
+      </div>
+      <p style="margin-top:12px"><a href="contact.html">تواصل مع المطور</a></p>
     </section>
 
     <!-- services strip (above the footer) -->
