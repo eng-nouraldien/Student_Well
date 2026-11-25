@@ -185,6 +185,7 @@
   <button class="btn ghost" id="stopPomo">إيقاف</button>
   <button class="btn ghost small" id="breakNow">استراحة الآن</button>
   <button class="btn small ghost" id="savePomo">حفظ كمفضل</button>
+  <button class="btn small ghost" id="cancelBreak" style="display:none">إلغاء الاستراحة</button>
 </div>
 
             <div style="font-size:13px;color:var(--muted)">نصيحة: قبل البدء اغلق الإشعارات لمدة 30 دقيقة لزيادة الفاعلية.</div>
@@ -401,6 +402,8 @@
 
   // timer text
   clock.textContent = format(total);
+  const cb = document.getElementById('cancelBreak');
+  if(cb) cb.style.display = (mode === 'break') ? '' : 'none';
 
   // state text + color
   if(mode === 'work'){
@@ -500,6 +503,8 @@ stopBtn.addEventListener('click', ()=>{
   breakNowBtn.addEventListener('click', forceBreak);
   startBreakBtn.addEventListener('click', forceBreak);
   endBreakBtn.addEventListener('click', endBreak);
+  const cancelBreakBtn = document.getElementById('cancelBreak');
+  if(cancelBreakBtn) cancelBreakBtn.addEventListener('click', endBreak);
 
   loadState();
 })();
