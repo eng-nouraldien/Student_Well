@@ -275,6 +275,19 @@
       grid-template-columns:1fr;
     }
   }
+
+  #scoreDisplay{ font-size:26px }
+  .q-group{ margin:18px 0 8px; font-size:16px; color:var(--accent) }
+  .q.missing{ outline:2px solid #e11d48; border-radius:10px; padding:6px }
+  .safety-msg{ margin-top:14px; padding:14px 16px; border-radius:12px; background:rgba(225,29,72,0.10); border:1px solid rgba(225,29,72,0.35); line-height:1.9; font-weight:600 }
+  .alert-box{ margin-top:10px; padding:10px 14px; border-radius:10px; background:rgba(245,158,11,0.15); border:1px solid rgba(245,158,11,0.4); line-height:1.8 }
+  .domain-list{ margin-top:12px; display:flex; flex-direction:column; gap:8px }
+  .domain-row{ display:flex; align-items:center; gap:10px; font-size:14px }
+  .domain-row span{ min-width:120px }
+  .domain-bar{ flex:1; height:8px; background:rgba(47,111,168,0.15); border-radius:999px; overflow:hidden }
+  .domain-bar i{ display:block; height:100%; background:linear-gradient(90deg,#2f6fa8,#2f9e92); border-radius:999px }
+  .domain-bar i.low{ background:#f59e0b }
+  .domain-row b{ min-width:28px; text-align:left }
 </style>
 
 </head>
@@ -287,7 +300,7 @@
         <img class="logo" src="images/survey-logo.jpg" alt="StudentWell logo">
         <div class="titles">
           <h1>Student Well — استبيان تقييم الحالة النفسية</h1>
-          <p>استبيان يومي قابل للتخصيص. اختر عدد الأسئلة ونمط التصنيف ثم اضغط "غيّر الأسئلة" لبداية مجموعة جديدة.</p>
+          <p>فحص توعوي قصير (10 أسئلة ثابتة) عن آخر أسبوعين، مع خيار الأسئلة الموسّعة لو عايز تفاصيل أكتر. إجاباتك بتتحفظ على جهازك فقط ومبتتبعتش لأي سيرفر.</p>
         </div>
       </div>
 <p class="hint">
@@ -303,30 +316,14 @@
 
     <!-- Controls panel -->
     <div class="controls-panel" role="toolbar" aria-label="Survey controls">
-      <div class="group">
-        <label for="nQuestions">عدد الأسئلة:</label>
-        <select id="nQuestions" aria-label="عدد الأسئلة">
-          <option value="5">5 أسئلة</option>
-          <option value="10">10 أسئلة</option>
-          <option value="15">15 أسئلة</option>
-          <option value="20">20 أسئلة</option>
-          <option value="25">25 أسئلة</option>
-        </select>
-      </div>
-
       <div class="group" style="align-items:center;">
-        <label>نمط التصنيف:</label>
-        <div id="modeGroup" style="display:flex;gap:8px;align-items:center">
-          <div class="mode-pill active" data-mode="quick">سريع — مبسّط</div>
-          <div class="mode-pill" data-mode="detailed">مفصّل</div>
-          <div class="mode-pill" data-mode="severity">حسب الشدة</div>
+        <label>نوع الفحص:</label>
+        <div id="modeGroup" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+          <div class="mode-pill active" data-mode="core">أساسي — 10 أسئلة</div>
+          <div class="mode-pill" data-mode="extended">موسّع — أكثر تفصيلًا</div>
         </div>
       </div>
-
-      <div style="margin-left:auto; display:flex; gap:8px; align-items:center">
-        <button id="changeQsBtn" class="btn" type="button">غيّر الأسئلة (مجموعة جديدة)</button>
-        <button id="resetBank" class="btn ghost" type="button">إعادة خلط البنك</button>
-      </div>
+      <div style="color:var(--muted);font-size:13px;line-height:1.7">كل الأسئلة عن آخر أسبوعين. الأسئلة الأساسية ثابتة علشان تقدر تقارن نتيجتك بمرور الوقت.</div>
     </div>
 
     <!-- Survey card -->
@@ -335,12 +332,16 @@
 
       <form id="surveyForm" novalidate>
 <div id="progressText" style="margin-bottom:10px;font-weight:600;color:var(--muted)">
-  السؤال 1 من 5
+  تمت الإجابة على 0 من 11
 </div>
 
+        <div style="margin-bottom:12px;color:var(--muted);line-height:1.8">خلال <strong>آخر أسبوعين</strong>، كم مرة حصل معاك كل مما يلي؟</div>
         <div id="questionsContainer">
           <!-- سيتم إنشاء N أسئلة هنا برمجياً -->
         </div>
+
+        <div id="safetyContainer"></div>
+        <div id="safetyMsg" class="safety-msg" role="alert" hidden></div>
 
         <div class="actions">
           <button type="submit" class="btn">حلّل النتيجة</button>
@@ -351,11 +352,15 @@
 
       <div class="result" aria-live="polite">
         <div class="summary">
-          <div class="score" id="scoreDisplay">- / 100</div>
+          <div id="safetyResult" class="safety-msg" role="alert" hidden></div>
+          <div class="score" id="scoreDisplay">مؤشر الراحة النفسية: - / 100</div>
+          <div id="bandLabel" style="color:var(--muted);margin:4px 0 8px"></div>
           <div class="meter" aria-hidden><span id="meterBar" style="width:0%"></span></div>
+          <div id="alertBox" class="alert-box" role="alert" hidden></div>
+          <div id="domainList" class="domain-list"></div>
 
           <div class="rec" id="recommendations" style="margin-top:12px">
-            <h4>توصيات سريعة</h4>
+            <h4>نصائح مرتبطة بنتيجتك</h4>
             <ul id="recList"></ul>
           </div>
 
@@ -382,64 +387,123 @@
   </main>
 
   <script>
-    /* ====== survey logic (معدّل ليدعم N أسئلة + أنماط التصنيف) ====== */
+    /* ====== Student Well survey v2 ====== */
+    const SCALE = ['أبدًا','نادرًا','أحيانًا','غالبًا','دائمًا'];
+    const SAFETY_SCALE = ['أبدًا','عدة أيام','أكثر من نصف الأيام','تقريبًا كل يوم'];
+    const DOMAINS = {
+      mood:'المزاج', anxiety:'التوتر والقلق', sleep:'النوم والطاقة',
+      support:'الدعم والانتماء', study:'الدراسة والضغوط'
+    };
+    const DOMAIN_ORDER = ['mood','anxiety','sleep','support','study'];
+    const ALERT_THRESHOLD = 50;
 
-    // question bank (25 items as before)
-    const QUESTION_BANK = [
+    // dir: 'pos' = كل ما زاد التكرار كان أفضل، 'neg' = كل ما زاد التكرار كان أسوأ
+    const CORE = [
+      { id:'m1', domain:'mood',    dir:'pos', text:'شعرت بالسعادة وراحة البال' },
+      { id:'m2', domain:'mood',    dir:'neg', text:'شعرت بالحزن أو الإحباط أو اليأس' },
+      { id:'m3', domain:'mood',    dir:'neg', text:'فقدت الاهتمام أو المتعة بأشياء كنت تستمتع بها' },
+      { id:'a1', domain:'anxiety', dir:'neg', text:'شعرت بالتوتر أو العصبية أو القلق' },
+      { id:'a2', domain:'anxiety', dir:'neg', text:'لم تستطع إيقاف القلق أو السيطرة عليه' },
+      { id:'s1', domain:'sleep',   dir:'pos', text:'استيقظت وأنت مرتاح ونشيط' },
+      { id:'s2', domain:'sleep',   dir:'neg', text:'واجهت صعوبة في بدء النوم' },
+      { id:'p1', domain:'support', dir:'pos', text:'وجدت شخصًا تثق فيه وتتحدث معه عندما احتجت' },
+      { id:'p2', domain:'support', dir:'neg', text:'شعرت بالوحدة أو العزلة' },
+      { id:'d1', domain:'study',   dir:'neg', text:'شعرت بأن ضغط الدراسة أكبر من قدرتك على تحمله' }
+    ];
+    const EXTRA = [
+      { id:'x_m1', domain:'mood',    dir:'pos', text:'شعرت بالثقة في نفسك' },
+      { id:'x_m2', domain:'mood',    dir:'neg', text:'راودتك أفكار سلبية متكررة عن نفسك' },
+      { id:'x_m3', domain:'mood',    dir:'pos', text:'استمتعت بالأشياء الصغيرة في يومك' },
+      { id:'x_a1', domain:'anxiety', dir:'pos', text:'شعرت بالهدوء والاسترخاء' },
+      { id:'x_a2', domain:'anxiety', dir:'neg', text:'شعرت بخوف زائد قبل الامتحانات' },
+      { id:'x_a3', domain:'anxiety', dir:'neg', text:'شعرت بخوف زائد في المواقف الاجتماعية' },
+      { id:'x_a4', domain:'anxiety', dir:'neg', text:'شعرت بسرعة غضب أو عصبية' },
+      { id:'x_a5', domain:'anxiety', dir:'neg', text:'شعرت بشد عضلي أو توتر جسدي' },
+      { id:'x_a6', domain:'anxiety', dir:'neg', text:'شعرت بخفقان في القلب بسبب التوتر' },
+      { id:'x_a7', domain:'anxiety', dir:'neg', text:'قلقت من أحداث المستقبل' },
+      { id:'x_s1', domain:'sleep',   dir:'neg', text:'استيقظت أكثر من مرة أثناء الليل' },
+      { id:'x_s2', domain:'sleep',   dir:'pos', text:'شعرت بالنشاط والحيوية خلال اليوم' },
+      { id:'x_s3', domain:'sleep',   dir:'neg', text:'شعرت بتعب جسدي بدون سبب واضح' },
+      { id:'x_s4', domain:'sleep',   dir:'neg', text:'شعرت بأن طاقتك أقل من المعتاد' },
+      { id:'x_p1', domain:'support', dir:'pos', text:'شعرت بالانتماء لأصدقاء أو زملاء' },
+      { id:'x_p2', domain:'support', dir:'neg', text:'تأثرت علاقاتك الاجتماعية بسبب حالتك النفسية' },
+      { id:'x_d1', domain:'study',   dir:'pos', text:'استطعت التركيز أثناء المذاكرة' },
+      { id:'x_d2', domain:'study',   dir:'pos', text:'استطعت التركيز أثناء المحاضرات' },
+      { id:'x_d3', domain:'study',   dir:'neg', text:'أجّلت مذاكرة أو مهام ضرورية' },
+      { id:'x_d4', domain:'study',   dir:'neg', text:'شعرت بضغط مادي أو أسري يثقل عليك' },
+      { id:'x_d5', domain:'study',   dir:'neg', text:'قلقت على مستقبلك الدراسي أو المهني' }
+    ];
+    // عادات: بتظهر في الفحص الموسّع ومش داخلة في الدرجة، بس بتأثر على النصائح
+    const HABITS = [
+      { id:'h1', dir:'pos', text:'خصصت وقتًا يوميًا للراحة أو الاسترخاء',
+        tip:'خصص 15 دقيقة يوميًا للراحة (تنفس، مشي، أو أي حاجة بتحبها) من غير موبايل.' },
+      { id:'h2', dir:'neg', text:'لجأت للموبايل أو الألعاب للهروب من التوتر',
+        tip:'لما تلاقي نفسك بتهرب للموبايل أو الألعاب، جرّب تمرين تنفس قصير الأول، وبعدها قرر هتكمل ولا لأ.' },
+      { id:'h3', dir:'neg', text:'لجأت للأكل للهروب من التوتر',
+        tip:'لما تاكل من التوتر مش من الجوع، اشرب مية وامشي خمس دقايق قبل ما تقرر.' }
+    ];
+    const SAFETY_Q = 'كم مرة راودتك أفكار بأنك تؤذي نفسك، أو أن الحياة ليست جديرة بأن تُعاش؟';
 
-  // ===== التوتر والقلق =====
-  { id:'Q01', text:'خلال آخر 7 أيام، كم مرة شعرت بضغط أو توتر شديد؟', scale:['أبدًا','نادرًا','أحيانًا','غالبًا','دائمًا'], reverse:true },
-  { id:'Q09', text:'هل كان لديك قلق من الأحداث المستقبلية مؤخرًا؟', scale:['أبدًا','نادرًا','أحيانًا','غالبًا','دائمًا'], reverse:true },
-  { id:'Q23', text:'هل تشعر بخوف زائد قبل الامتحانات أو المواقف الاجتماعية؟', scale:['أبدًا','نادرًا','أحيانًا','غالبًا','دائمًا'], reverse:true },
+    const SAFETY_MESSAGE =
+      'شكرًا إنك جاوبت بصراحة. اللي بتحس بيه مهم، ومش لازم تتحمله لوحدك. ' +
+      'لو بتفكر تؤذي نفسك أو الحياة تقيلة عليك قوي، كلّم النهارده حد تثق فيه من أهلك أو أصحابك، ومتفضلش لوحدك. ' +
+      'وتقدر تتصل بالخط الساخن للصحة النفسية في مصر (مجاني): 08008880700. ' +
+      'ولو في خطر فوري على حياتك أو حياة حد، اتصل بالإسعاف 123 أو روح لأقرب طوارئ. ' +
+      'النتيجة هنا مش تشخيص، لكن الكلام مع مختص ممكن يفرق معاك.';
 
-  // ===== النوم والطاقة =====
-  { id:'Q02', text:'كيف تقيّم جودة نومك خلال الأسبوع الماضي؟', scale:['سيئة جدًا','سيئة','متوسطة','جيدة','ممتازة'] },
-  { id:'Q07', text:'هل تعاني من صعوبة في النوم (الاستغراق أو الاستمرار)؟', scale:['أبدًا','نادرًا','أحيانًا','غالبًا','دائمًا'], reverse:true },
-  { id:'Q21', text:'هل تشعر بأن طاقتك أقل من المعتاد؟', scale:['أبدًا','نادرًا','أحيانًا','غالبًا','دائمًا'], reverse:true },
+    const DOMAIN_TIPS = {
+      mood: [
+        'اكتب كل يوم 3 حاجات حلوة حصلت معاك، حتى لو صغيرة.',
+        'اعمل نشاط بسيط كنت بتحبه ولو 15 دقيقة، حتى لو مش حاسس بحماس.',
+        'اتمشى 15 إلى 20 دقيقة في الشمس لو أمكن.',
+        'احكي لحد تثق فيه اللي حاسس بيه بدل ما تشيله لوحدك.'
+      ],
+      anxiety: [
+        'جرّب تمرين التنفس 4-4-4 (شهيق 4، حبس 4، زفير 4) لمدة 3 دورات. هتلاقيه في صفحة الخطط والنصائح.',
+        'اكتب اللي قلقان منه وقسّمه: حاجات تقدر تتصرف فيها، وحاجات خارج إيدك.',
+        'قلل الكافيين (قهوة، شاي، مشروبات طاقة)، خصوصًا آخر اليوم.',
+        'خد فترات راحة قصيرة أثناء المذاكرة بدل ما تذاكر ساعات متواصلة.'
+      ],
+      sleep: [
+        'ثبّت ميعاد النوم والصحيان قدر الإمكان، حتى في الإجازة.',
+        'قلل الشاشات قبل النوم بساعة، وخفّض الإضاءة.',
+        'بلاش كافيين آخر اليوم، وخلّي الأوضة هادية ومظلمة.',
+        'لو ما جاكش نوم بعد 20 دقيقة، قوم اعمل حاجة هادية لحد ما تنعس.'
+      ],
+      support: [
+        'اختار شخص واحد تثق فيه وابعتله رسالة النهارده، حتى لو بسيطة.',
+        'انضم لمجموعة مذاكرة أو نشاط صغير في الكلية أو برا.',
+        'لو في خدمة إرشاد نفسي في الجامعة، اعرف مكانها واحتفظ بتفاصيلها.',
+        'قول لحد قريب منك إنك محتاج دعم، الناس غالبًا بتساعد لما تعرف.'
+      ],
+      study: [
+        'قسّم المذاكرة لجلسات 25 دقيقة تركيز و5 راحة (بومودورو في صفحة الخطط).',
+        'رتّب مهامك وابدأ بأصغر خطوة، بدل ما تبص على الحمل كله مرة واحدة.',
+        'لو الحمل أكبر من قدرتك، كلّم دكتور أو زميل واطلب ترتيب أو مساعدة.',
+        'حدد هدف دراسي واحد واقعي لكل يوم واحتفل بإنجازه.'
+      ]
+    };
+    const MAINTAIN_TIPS = [
+      'كمّل على عاداتك الحالية: نوم منتظم وحركة وتواصل مع الناس.',
+      'راجع حالتك كل فترة (مثلًا كل أسبوعين) علشان تلاحظ أي تغيير بدري.',
+      'شارك اللي بيفيدك مع صاحب أو زميل، الدعم بيتبادل.'
+    ];
 
-  // ===== التركيز والأداء =====
-  { id:'Q03', text:'ما مدى قدرتك على التركيز أثناء المذاكرة أو العمل؟', scale:['ضعيفة جدًا','ضعيفة','متوسطة','جيدة','ممتازة'] },
-  { id:'Q12', text:'هل تشعر بأن تركيزك يقل أثناء المحاضرات؟', scale:['أبدًا','نادرًا','أحيانًا','غالبًا','دائمًا'], reverse:true },
-  { id:'Q19', text:'هل تشعر أن هناك ما يؤثر سلبًا على أدائك الأكاديمي؟', scale:['أبدًا','نادرًا','أحيانًا','غالبًا','دائمًا'], reverse:true },
+    const HISTORY_KEY = 'studentwell_history_v2';
+    const DRAFT_KEY = 'studentwell_draft_v2';
 
-  // ===== المزاج والصحة النفسية =====
-  { id:'Q05', text:'كيف تصف مزاجك العام خلال الأسبوع الماضي؟', scale:['سيئ جدًا','سيئ','محايد','جيد','جيد جدًا'] },
-  { id:'Q06', text:'هل فقدت الاهتمام بالأنشطة التي كنت تستمتع بها؟', scale:['أبدًا','نادرًا','أحيانًا','غالبًا','دائمًا'], reverse:true },
-  { id:'Q16', text:'هل تراودك أفكار سلبية متكررة عن نفسك؟', scale:['أبدًا','نادرًا','أحيانًا','غالبًا','دائمًا'], reverse:true },
-
-  // ===== العادات والتعامل مع الضغط =====
-  { id:'Q04', text:'هل تخصص وقتًا يوميًا للراحة أو الاسترخاء؟', scale:['أبدًا','نادرًا','أحيانًا','غالبًا','دائمًا'] },
-  { id:'Q18', text:'هل تلجأ للموبايل أو الأكل أو اللعب للهروب من التوتر؟', scale:['أبدًا','نادرًا','أحيانًا','غالبًا','دائمًا'], reverse:true },
-
-  // ===== العلاقات والدعم =====
-  { id:'Q11', text:'هل تتأثر علاقاتك الاجتماعية بسبب حالتك النفسية؟', scale:['أبدًا','نادرًا','أحيانًا','غالبًا','دائمًا'], reverse:true },
-  { id:'Q20', text:'هل تجد شخصًا تتحدث معه عندما تشعر بالتوتر؟', scale:['أبدًا','نادرًا','أحيانًا','غالبًا','دائمًا'] },
-
-  // ===== الجسد =====
-  { id:'Q10', text:'هل تشعر بتعب جسدي بدون سبب واضح؟', scale:['أبدًا','نادرًا','أحيانًا','غالبًا','دائمًا'], reverse:true },
-  { id:'Q17', text:'هل تعاني من توتر جسدي مثل شد عضلي أو خفقان؟', scale:['أبدًا','نادرًا','أحيانًا','غالبًا','دائمًا'], reverse:true },
-  { id:'Q24', text:'هل لاحظت تغيرًا في وزنك مؤخرًا بدون قصد؟', scale:['أبدًا','نادرًا','أحيانًا','غالبًا','دائمًا'], reverse:true },
-
-  // ===== الإيجابية والأهداف =====
-  { id:'Q15', text:'هل تشعر أنك تستمتع بالأشياء الصغيرة في حياتك؟', scale:['أبدًا','نادرًا','أحيانًا','غالبًا','دائمًا'] },
-  { id:'Q25', text:'هل تشعر أن لديك هدفًا أو خطة واضحة ليومك؟', scale:['أبدًا','نادرًا','أحيانًا','غالبًا','دائمًا'] }
-];
-
-
-
-    const HISTORY_KEY = 'studentwell_history';
-    const DRAFT_KEY = 'studentwell_draft';
-
-    // refs
     const questionsContainer = document.getElementById('questionsContainer');
-    const changeQsBtn = document.getElementById('changeQsBtn');
-    const resetBankBtn = document.getElementById('resetBank');
-    const nQuestionsSelect = document.getElementById('nQuestions');
+    const safetyContainer = document.getElementById('safetyContainer');
+    const safetyMsg = document.getElementById('safetyMsg');
+    const safetyResult = document.getElementById('safetyResult');
     const modeGroup = document.getElementById('modeGroup');
-
+    const progressText = document.getElementById('progressText');
     const form = document.getElementById('surveyForm');
     const scoreDisplay = document.getElementById('scoreDisplay');
+    const bandLabel = document.getElementById('bandLabel');
     const meterBar = document.getElementById('meterBar');
+    const alertBox = document.getElementById('alertBox');
+    const domainList = document.getElementById('domainList');
     const recList = document.getElementById('recList');
     const historyList = document.getElementById('historyList');
     const saveDraft = document.getElementById('saveDraft');
@@ -447,232 +511,254 @@
     const exportBtn = document.getElementById('exportBtn');
     const printBtn = document.getElementById('printBtn');
 
-    // state
-    let bank = [...QUESTION_BANK];
-    let shownSets = [];
-    let currentSet = [];
-    let activeMode = 'quick';
+    let mode = 'core';        // core | extended
+    let answers = {};         // id -> 0..4 (raw, قبل قلب الأسئلة العكسية)
+    let safetyAnswer = null;  // 0..3 (مش بيتخزن في المسودة ولا السجل)
 
-    // helper shuffle
-    function shuffle(arr){ const a = arr.slice(); for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]] } return a; }
+    function scoredItems(){
+      return mode === 'extended' ? CORE.concat(EXTRA) : CORE.slice();
+    }
+    function habitItems(){ return mode === 'extended' ? HABITS : []; }
+    function totalQuestions(){ return scoredItems().length + habitItems().length + 1; }
 
-    function pickNewSet(n){
-      const N = Number(n) || 5;
-      // if not enough left in bank -> refill
-      if(bank.length < N){
-        bank = shuffle(QUESTION_BANK.slice());
-        shownSets = [];
-      }
-      // pick random N from bank (remove them)
-      const shuffled = shuffle(bank);
-      const set = shuffled.slice(0,N);
-      // remove chosen from bank
-      const chosenIds = new Set(set.map(s=>s.id));
-      bank = bank.filter(b => !chosenIds.has(b.id));
-      shownSets.push(set.map(s=>s.id));
-      if(shownSets.length > Math.ceil(QUESTION_BANK.length / Math.max(5,N)) + 3) shownSets.shift();
-      return set;
+    function wellbeing(item, v){ return item.dir === 'pos' ? v : 4 - v; }
+
+    function answeredCount(){
+      let n = 0;
+      scoredItems().concat(habitItems()).forEach(i => { if(answers[i.id] != null) n++; });
+      if(safetyAnswer != null) n++;
+      return n;
+    }
+    function updateProgress(){
+      progressText.textContent = `تمت الإجابة على ${answeredCount()} من ${totalQuestions()}`;
     }
 
-    // render set into DOM (names q1..qN)
-    function renderQuestionSet(set){
-      currentSet = set;
-const progressText = document.getElementById('progressText');
-if (progressText) {
-  progressText.textContent = `السؤال 1 من ${set.length}`;
-}
-
-      questionsContainer.innerHTML = '';
-      const n = set.length;
-      set.forEach((qObj, idx) => {
-        const qIndex = idx + 1;
-        const wrapper = document.createElement('div');
-        wrapper.className = 'q';
-        wrapper.dataset.qid = qObj.id;
-
-        const label = document.createElement('label');
-        label.className = 'q-title';
-        label.textContent = `${qIndex}. ${qObj.text}`;
-        wrapper.appendChild(label);
-
-        const opts = document.createElement('div');
-        opts.className = 'options';
-        opts.setAttribute('role','radiogroup');
-
-        // decide mapping direction based on mode (severity/detailed might invert)
-        // default: index 0 -> 0 ... index 4 -> 4 (higher better)
-        // for some negative-worded questions you might want to invert later.
-        qObj.scale.forEach((optText, i) => {
-          const labelOpt = document.createElement('label');
-          labelOpt.className = 'opt';
-          labelOpt.tabIndex = 0;
-          const input = document.createElement('input');
-          input.type = 'radio';
-          input.name = `q${qIndex}`;
-          input.value = i; // 0..4
-          input.style.display = 'none';
-          const span = document.createElement('span');
-          span.textContent = optText;
-          labelOpt.appendChild(input);
-          labelOpt.appendChild(span);
-
-          labelOpt.addEventListener('click', ()=>{
-            opts.querySelectorAll('.opt').forEach(s=>s.classList.remove('selected'));
-            labelOpt.classList.add('selected');
-            input.checked = true;
-          });
-          labelOpt.addEventListener('keydown', (e)=> { if(e.key==='Enter'||e.key===' '){ e.preventDefault(); labelOpt.click(); } });
-          opts.appendChild(labelOpt);
+    function makeQuestion(item, index, scale, onPick, current){
+      const wrapper = document.createElement('div');
+      wrapper.className = 'q';
+      wrapper.dataset.qid = item.id;
+      const label = document.createElement('label');
+      label.className = 'q-title';
+      label.textContent = `${index}. ${item.text}`;
+      wrapper.appendChild(label);
+      const opts = document.createElement('div');
+      opts.className = 'options';
+      opts.setAttribute('role','radiogroup');
+      scale.forEach((txt, i) => {
+        const lab = document.createElement('label');
+        lab.className = 'opt';
+        lab.tabIndex = 0;
+        const input = document.createElement('input');
+        input.type = 'radio';
+        input.name = item.id;
+        input.value = i;
+        input.style.display = 'none';
+        const span = document.createElement('span');
+        span.textContent = txt;
+        lab.appendChild(input);
+        lab.appendChild(span);
+        if(current === i){ input.checked = true; lab.classList.add('selected'); }
+        lab.addEventListener('click', (e)=>{
+          e.preventDefault();
+          opts.querySelectorAll('.opt').forEach(s=>s.classList.remove('selected'));
+          lab.classList.add('selected');
+          input.checked = true;
+          wrapper.classList.remove('missing');
+          onPick(i);
         });
+        lab.addEventListener('keydown', (e)=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); lab.click(); } });
+        opts.appendChild(lab);
+      });
+      wrapper.appendChild(opts);
+      return wrapper;
+    }
 
-        wrapper.appendChild(opts);
+    function renderQuestions(){
+      questionsContainer.innerHTML = '';
+      const items = scoredItems();
+      let idx = 0;
+      DOMAIN_ORDER.forEach(dk => {
+        const group = items.filter(i => i.domain === dk);
+        if(!group.length) return;
+        const h = document.createElement('h3');
+        h.className = 'q-group';
+        h.textContent = DOMAINS[dk];
+        questionsContainer.appendChild(h);
+        group.forEach(item => {
+          idx++;
+          questionsContainer.appendChild(makeQuestion(item, idx, SCALE, v => {
+            answers[item.id] = v; updateProgress();
+          }, answers[item.id]));
+        });
+      });
+      const habits = habitItems();
+      if(habits.length){
+        const h = document.createElement('h3');
+        h.className = 'q-group';
+        h.textContent = 'عادات يومية (لا تدخل في الدرجة، لكن بتأثر على النصائح)';
+        questionsContainer.appendChild(h);
+        habits.forEach(item => {
+          idx++;
+          questionsContainer.appendChild(makeQuestion(item, idx, SCALE, v => {
+            answers[item.id] = v; updateProgress();
+          }, answers[item.id]));
+        });
+      }
+      // safety item
+      safetyContainer.innerHTML = '';
+      const sh = document.createElement('h3');
+      sh.className = 'q-group';
+      sh.textContent = 'سؤال منفصل (لا يدخل في الدرجة)';
+      safetyContainer.appendChild(sh);
+      idx++;
+      safetyContainer.appendChild(makeQuestion({ id:'safety', text:SAFETY_Q }, idx, SAFETY_SCALE, v => {
+        safetyAnswer = v; showSafety(v > 0, true); updateProgress();
+      }, safetyAnswer));
+      updateProgress();
+    }
 
-        const hidden = document.createElement('input');
-        hidden.type = 'hidden';
-        hidden.name = `qid${qIndex}`;
-        hidden.value = qObj.id;
-        wrapper.appendChild(hidden);
+    function showSafety(show, scroll){
+      [safetyMsg, safetyResult].forEach(el => {
+        el.hidden = !show;
+        el.textContent = show ? SAFETY_MESSAGE : '';
+      });
+      if(show && scroll){ safetyMsg.scrollIntoView({ behavior:'smooth', block:'center' }); }
+    }
 
-        questionsContainer.appendChild(wrapper);
+    function compute(){
+      const items = scoredItems();
+      const dom = {};
+      let sum = 0, n = 0;
+      items.forEach(i => {
+        const v = answers[i.id];
+        if(v == null) return;
+        const w = wellbeing(i, v);
+        sum += w; n++;
+        dom[i.domain] = dom[i.domain] || { s:0, n:0 };
+        dom[i.domain].s += w; dom[i.domain].n++;
+      });
+      const domains = {};
+      Object.keys(dom).forEach(k => { domains[k] = Math.round(dom[k].s / (4 * dom[k].n) * 100); });
+      const overall = n ? Math.round(sum / (4 * n) * 100) : 0;
+      return { overall, domains };
+    }
+
+    function bandOf(p){
+      if(p < 30) return { id:0, label:'يحتاج اهتمامًا ودعمًا الآن' };
+      if(p < 50) return { id:1, label:'أقل من المتوسط (تحت حد التنبيه 50)' };
+      if(p < 70) return { id:2, label:'متوسط' };
+      if(p < 85) return { id:3, label:'جيد' };
+      return { id:4, label:'ممتاز' };
+    }
+
+    const BAND_INTRO = [
+      'نتيجتك بتقول إنك تحت ضغط كبير. أهم خطوة دلوقتي إنك تكلّم مختص نفسي أو حد قريب منك ومتتحملش لوحدك. الخط الساخن المجاني: 08008880700.',
+      'نتيجتك أقل من المتوسط. مش معناها إن في خطر بالضرورة، بس تستاهل اهتمام. لو الحالة دي كمّلت أكتر من أسبوعين، كلّم مختص أو مرشد في الجامعة.',
+      'نتيجتك متوسطة: في جوانب كويسة وجوانب تستاهل تتحسن. خطوات صغيرة ثابتة ممكن تفرق.',
+      'نتيجتك جيدة. كمّل على اللي ماشي كويس، وركّز شوية على أضعف مجال عندك.',
+      'نتيجتك ممتازة. حافظ على عاداتك، وراجع حالتك كل فترة.'
+    ];
+
+    function buildAdvice(res){
+      const band = bandOf(res.overall);
+      const recs = [BAND_INTRO[band.id]];
+      const ds = Object.keys(res.domains).sort((a,b)=> res.domains[a]-res.domains[b] ||
+        DOMAIN_ORDER.indexOf(a)-DOMAIN_ORDER.indexOf(b));
+      const weakest = ds[0];
+      if(weakest && res.domains[weakest] < 85){
+        recs.push(`أضعف مجال عندك: ${DOMAINS[weakest]} (${res.domains[weakest]} من 100). نصايح له:`);
+        DOMAIN_TIPS[weakest].slice(0,3).forEach(t => recs.push(t));
+        const second = ds[1];
+        if(second && res.domains[second] < ALERT_THRESHOLD){
+          recs.push(`مجال تاني يستاهل انتباه: ${DOMAINS[second]} (${res.domains[second]} من 100). ${DOMAIN_TIPS[second][0]}`);
+        }
+      } else {
+        MAINTAIN_TIPS.forEach(t => recs.push(t));
+      }
+      habitItems().forEach(h => {
+        const v = answers[h.id];
+        if(v == null) return;
+        const w = h.dir === 'pos' ? v : 4 - v;
+        if(w <= 1) recs.push(h.tip);
+      });
+      recs.push('تذكير: النتيجة والنصايح إرشادية للتوعية فقط وليست تشخيصًا طبيًا.');
+      return recs;
+    }
+
+    function showResult(res){
+      const band = bandOf(res.overall);
+      scoreDisplay.textContent = `مؤشر الراحة النفسية: ${res.overall} / 100`;
+      bandLabel.textContent = `${band.label} — الأعلى أفضل`;
+      meterBar.style.width = `${res.overall}%`;
+      alertBox.hidden = res.overall >= ALERT_THRESHOLD;
+      alertBox.textContent = res.overall < ALERT_THRESHOLD
+        ? 'تنبيه: مؤشرك أقل من 50. ده مش تشخيص، لكنه سبب كافي تتكلم مع مختص أو مرشد نفسي.'
+        : '';
+      domainList.innerHTML = '';
+      DOMAIN_ORDER.forEach(k => {
+        if(res.domains[k] == null) return;
+        const row = document.createElement('div');
+        row.className = 'domain-row';
+        const name = document.createElement('span');
+        name.textContent = DOMAINS[k];
+        const bar = document.createElement('div');
+        bar.className = 'domain-bar';
+        const fill = document.createElement('i');
+        fill.style.width = res.domains[k] + '%';
+        if(res.domains[k] < ALERT_THRESHOLD) fill.className = 'low';
+        bar.appendChild(fill);
+        const val = document.createElement('b');
+        val.textContent = res.domains[k];
+        row.appendChild(name); row.appendChild(bar); row.appendChild(val);
+        domainList.appendChild(row);
+      });
+      recList.innerHTML = '';
+      buildAdvice(res).forEach(r => {
+        const li = document.createElement('li');
+        li.textContent = r;
+        recList.appendChild(li);
       });
     }
 
-    // initial
-    function initialRender(){
-      bank = shuffle(QUESTION_BANK.slice());
-      shownSets = [];
-      const n = Number(nQuestionsSelect.value) || 5;
-      const set = pickNewSet(n);
-      renderQuestionSet(set);
-      loadDraftIntoForm();
-      renderHistory();
-    }
-
-    // controls
-    changeQsBtn.addEventListener('click', ()=>{
-      const n = Number(nQuestionsSelect.value) || 5;
-      const set = pickNewSet(n);
-      renderQuestionSet(set);
-      document.querySelectorAll('.opt.selected').forEach(o=>o.classList.remove('selected'));
-      form.querySelectorAll('input[type=radio]').forEach(i=>i.checked=false);
-      // clear result
-      scoreDisplay.textContent = '- / 100';
+    function resetResult(){
+      scoreDisplay.textContent = 'مؤشر الراحة النفسية: - / 100';
+      bandLabel.textContent = '';
       meterBar.style.width = '0%';
+      alertBox.hidden = true; alertBox.textContent = '';
+      domainList.innerHTML = '';
       recList.innerHTML = '';
-    });
-
-    resetBankBtn.addEventListener('click', ()=>{
-      bank = shuffle(QUESTION_BANK.slice());
-      shownSets = [];
-      alert('تم إعادة خلط بنك الأسئلة.');
-    });
+      safetyResult.hidden = true; safetyResult.textContent = '';
+    }
 
     // mode pills
-    modeGroup.querySelectorAll('.mode-pill').forEach(p=>{
-      p.addEventListener('click', ()=>{
-        modeGroup.querySelectorAll('.mode-pill').forEach(x=>x.classList.remove('active'));
-        p.classList.add('active');
-        activeMode = p.dataset.mode;
-      });
+    function setMode(m){
+      mode = m;
+      modeGroup.querySelectorAll('.mode-pill').forEach(x => x.classList.toggle('active', x.dataset.mode === m));
+      renderQuestions();
+    }
+    modeGroup.querySelectorAll('.mode-pill').forEach(p => {
+      p.addEventListener('click', () => { resetResult(); setMode(p.dataset.mode); });
     });
 
-    // scoring mapping:
-    // we will compute raw = sum(vals) where each val 0..4
-    // final score scale: map to 0..100 by (raw / (n*4)) * 100
-    function calcScoreFromVals(vals){
-      const raw = vals.reduce((s,v)=> s + Number(v),0);
-      const n = vals.length;
-      const percent = Math.round((raw / (n*4)) * 100);
-      return { raw, percent };
-    }
-
-    // recommendations: return 5 tiers (we requested 5 quick recs map to score ranges)
-    function getRecommendations(percent){
-      // five tiers: 0-20 / 21-40 / 41-60 / 61-80 / 81-100
-      if(percent <= 20) return [
-        'تواصل مع مرشد أو صديق موثوق، واطلب دعمًا عند الحاجة.',
-        'ابحث عن موعد مع خدمات الصحة النفسية إن أمكن.',
-        'ابدأ بخطوات بسيطة: نوم منتظم، مشي يومي 10-15 دقيقة.',
-        'قلل الشاشات قبل النوم 30 دقيقة وجرّب تمارين تنفس قصيرة.',
-        'احتفظ بمذكرة يومية تسجل فيها 3 أمور إيجابية يوميًا.'
-      ];
-      if(percent <= 40) return [
-        'خصص فترات استراحة قصيرة أثناء المذاكرة (بومودورو).',
-        'جرب تمارين التنفس أو التأمل لمدة 5-10 دقائق يومياً.',
-        'مارس نشاطًا بدنيًا خفيفًا يوميًا (مشي/تمارين تمدد).',
-        'حدّد هدفًا بسيطًا يوميًا واحتفل بإنجازه مهما كان صغيرًا.',
-        'راقب نومك وحاول تحسين بيئة النوم (إضاءة/شاشات).'
-      ];
-      if(percent <= 60) return [
-        'أنت في مستوى متوسط — حافظ على العادات المفيدة.',
-        'استمر في تقسيم العمل لجلسات مركّزة مع راحات قصيرة.',
-        'حافظ على شبكة دعم (أصدقاء/أهل) وشاركهم تقدمك.',
-        'تابع روتين نوم ثابت وحاول تحسين جودة النوم تدريجيًا.',
-        'راجع أهدافك الأسبوعية وتأكد أنها واقعية ومتناسبة مع وقتك.'
-      ];
-      if(percent <= 80) return [
-        'مستوى جيد — واظب على الروتين الصحي.',
-        'يمكنك تحدي نفسك بأهداف جديدة صغيرة لرفع الأداء.',
-        'شارك نصائحك وتجاربك مع زملائك — دعم المجتمع مفيد.',
-        'تابع مراقبة النوم والنشاط البدني للحفاظ على الأداء.',
-        'استخدم أدوات تتبع لتقييم تقدمك أسبوعيًا.'
-      ];
-      return [
-        'مستوى ممتاز — استمر! حافظ على عاداتك اليومية.',
-        'شارك نجاحاتك وادعم الآخرين بتجاربك.',
-        'حافظ على التوازن بين العمل والراحة للحفاظ على الأداء.',
-        'فكّر في أهداف نمو طويلة الأمد وخطط لها تدريجيًا.',
-        'احرص على مراجعة حالتك دورياً للحفاظ على هذا المستوى.'
-      ];
-    }
-
-    // submit
     form.addEventListener('submit', (e)=>{
       e.preventDefault();
-      const formData = new FormData(form);
-      const n = currentSet.length;
-      const vals = [];
-      const qids = [];
-      for(let i=1;i<=n;i++){
-        const v = formData.get(`q${i}`);
-        const qid = formData.get(`qid${i}`);
-        if(v === null){
-          return alert('من فضلك جاوب على كل الأسئلة قبل التحليل.');
-        }
-        const question = currentSet[i-1];
-let value = Number(v);
-
-if (question.reverse) {
-  value = 4 - value;
-}
-
-vals.push(value);
-
-        qids.push(qid);
+      const all = scoredItems().concat(habitItems());
+      const missing = all.filter(i => answers[i.id] == null).map(i => i.id);
+      if(safetyAnswer == null) missing.push('safety');
+      if(missing.length){
+        document.querySelectorAll('.q').forEach(q => q.classList.toggle('missing', missing.includes(q.dataset.qid)));
+        const first = document.querySelector('.q.missing');
+        if(first) first.scrollIntoView({ behavior:'smooth', block:'center' });
+        return alert(`من فضلك جاوب على كل الأسئلة قبل التحليل (باقي ${missing.length}).`);
       }
-      const { raw, percent } = calcScoreFromVals(vals);
-      scoreDisplay.textContent = `${percent} / 100`;
-      meterBar.style.width = `${percent}%`;
-
-      // recommendations based on percent and activeMode (can be extended)
-      let recs = getRecommendations(percent);
-      // if user chose detailed, expand each rec with short explanation
-      if(activeMode === 'detailed'){
-        recs = recs.map(r => r + ' — ');
-      } else if(activeMode === 'severity'){
-        // emphasize escalation steps for low scores
-        if(percent <= 40){
-          recs.unshift('إذا استمرّت الأعراض أو زادت، راجع مختصًا في الصحة النفسية بأقرب وقت.');
-        }
-      }
-      recList.innerHTML = '';
-      recs.forEach(r => { const li = document.createElement('li'); li.textContent = r; recList.appendChild(li); });
-
-      // save history
+      const res = compute();
+      showResult(res);
+      showSafety(safetyAnswer > 0, false);
       const hist = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
-      hist.push({ t: Date.now(), qids, vals, raw, percent, mode: activeMode, n });
+      hist.push({ t: Date.now(), mode, answers: Object.assign({}, answers), overall: res.overall, domains: res.domains });
       localStorage.setItem(HISTORY_KEY, JSON.stringify(hist));
       renderHistory();
+      document.querySelector('.result').scrollIntoView({ behavior:'smooth', block:'start' });
     });
 
     function renderHistory(){
@@ -681,96 +767,60 @@ vals.push(value);
       if(!hist.length){ historyList.innerHTML = '<li style="color:var(--muted)">لا توجد بيانات محفوظة بعد.</li>'; return; }
       hist.slice().reverse().forEach((item, idx)=>{
         const li = document.createElement('li');
-        const d = new Date(item.t);
         const left = document.createElement('div');
-        left.textContent = `${d.toLocaleString()} — ${item.percent} / 100`;
+        left.textContent = `${new Date(item.t).toLocaleString()} — ${item.overall} / 100`;
         const actions = document.createElement('div');
-
         const showBtn = document.createElement('button');
+        showBtn.type = 'button';
         showBtn.textContent = 'عرض';
         showBtn.className = 'btn ghost';
         showBtn.style.padding = '6px 8px';
         showBtn.addEventListener('click', ()=>{
-          // render questions from qids
-          const questionsToRender = item.qids.map(id => QUESTION_BANK.find(q=>q.id===id) || { id, text: id, scale: ['0','1','2','3','4'] });
-          renderQuestionSet(questionsToRender);
-          // set values
-          setTimeout(()=> {
-            for(let i=1;i<=questionsToRender.length;i++){
-              const v = item.vals[i-1];
-              const el = document.querySelector(`input[name="q${i}"][value="${v}"]`);
-              if(el){ el.checked=true; el.closest('.opt').classList.add('selected'); }
-            }
-            scoreDisplay.textContent = `${item.percent} / 100`;
-            meterBar.style.width = `${item.percent}%`;
-            recList.innerHTML = '';
-            const recs = getRecommendations(item.percent);
-            recs.forEach(r=>{ const li2=document.createElement('li'); li2.textContent=r; recList.appendChild(li2); });
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-          }, 40);
+          answers = Object.assign({}, item.answers);
+          safetyAnswer = null;
+          showSafety(false, false);
+          setMode(item.mode === 'extended' ? 'extended' : 'core');
+          showResult(compute());
+          window.scrollTo({ top: 0, behavior: 'smooth' });
         });
-
         const delBtn = document.createElement('button');
+        delBtn.type = 'button';
         delBtn.textContent = 'حذف';
         delBtn.className = 'btn ghost';
         delBtn.style.padding = '6px 8px';
         delBtn.addEventListener('click', ()=>{
           if(!confirm('هل تريد حذف هذا السجل؟')) return;
           const all = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
-          all.splice(all.length - 1 - idx, 1); // because we reversed
+          all.splice(all.length - 1 - idx, 1);
           localStorage.setItem(HISTORY_KEY, JSON.stringify(all));
           renderHistory();
         });
-
         actions.appendChild(showBtn);
         actions.appendChild(delBtn);
-
         li.appendChild(left);
         li.appendChild(actions);
         historyList.appendChild(li);
       });
     }
 
-    // draft
     saveDraft.addEventListener('click', ()=>{
-      const formData = new FormData(form);
-      const n = currentSet.length;
-      const draft = { qids: [], vals: [] };
-      for(let i=1;i<=n;i++){
-        draft.qids.push(formData.get(`qid${i}`) || null);
-        draft.vals.push(formData.get(`q${i}`) || null);
-      }
-      localStorage.setItem(DRAFT_KEY, JSON.stringify(draft));
-      alert('تم حفظ المسودة محليًا.');
+      localStorage.setItem(DRAFT_KEY, JSON.stringify({ mode, answers }));
+      alert('تم حفظ المسودة على جهازك (من غير سؤال الأمان).');
     });
 
-    function loadDraftIntoForm(){
+    function loadDraft(){
       try{
-        const draft = JSON.parse(localStorage.getItem(DRAFT_KEY) || 'null');
-        if(!draft) return;
-        if(draft.qids && draft.qids.length === currentSet.length){
-          const questionsToRender = draft.qids.map(id => QUESTION_BANK.find(q=>q.id===id) || {id, text:id, scale:['0','1','2','3','4']});
-          renderQuestionSet(questionsToRender);
-        }
-        setTimeout(()=> {
-          if(draft.vals){
-            for(let i=1;i<=draft.vals.length;i++){
-              const v = draft.vals[i-1];
-              if(v !== null){
-                const el = document.querySelector(`input[name="q${i}"][value="${v}"]`);
-                if(el){ el.checked = true; el.closest('.opt').classList.add('selected'); }
-              }
-            }
-          }
-        }, 40);
-      }catch(e){ console.warn('load draft error', e); }
+        const d = JSON.parse(localStorage.getItem(DRAFT_KEY) || 'null');
+        if(d && d.answers){ answers = d.answers; mode = d.mode === 'extended' ? 'extended' : 'core'; }
+      }catch(e){ console.warn('draft error', e); }
     }
 
     clearForm.addEventListener('click', ()=>{
       if(!confirm('هل تريد تفريغ الاستبيان؟')) return;
-      form.reset();
-      document.querySelectorAll('.opt.selected').forEach(o=>o.classList.remove('selected'));
-      scoreDisplay.textContent = '- / 100'; meterBar.style.width = '0%'; recList.innerHTML = '';
+      answers = {}; safetyAnswer = null;
+      showSafety(false, false);
+      resetResult();
+      renderQuestions();
     });
 
     exportBtn.addEventListener('click', ()=>{
@@ -779,27 +829,12 @@ vals.push(value);
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a'); a.href = url; a.download = 'studentwell_history.json'; a.click(); URL.revokeObjectURL(url);
     });
-
     printBtn.addEventListener('click', ()=> window.print());
 
-    // initialize
-    initialRender();
-
-    // handle Enter to change questions (accessibility)
-    changeQsBtn.addEventListener('keydown', e=> { if(e.key === 'Enter') changeQsBtn.click(); });
-
-    // allow switching nQuestions to immediately render new set
-    nQuestionsSelect.addEventListener('change', ()=>{
-      const n = Number(nQuestionsSelect.value) || 5;
-      const set = pickNewSet(n);
-      renderQuestionSet(set);
-    });
-
-    // expose admin helper
-    window.studentwell = window.studentwell || {};
-    window.studentwell.addQuestionToBank = function(id, text, scaleArr){
-      QUESTION_BANK.push({ id, text, scale: scaleArr });
-    };
+    // init
+    loadDraft();
+    setMode(mode);
+    renderHistory();
   </script>
   <script src="site-nav.js"></script>
   <script src="nav-scroll.js"></script>
